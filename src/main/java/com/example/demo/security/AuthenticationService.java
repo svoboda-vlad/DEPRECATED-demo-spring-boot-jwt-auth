@@ -13,7 +13,7 @@ import static java.util.Collections.emptyList;
 
 public class AuthenticationService {
   static final long EXPIRATIONTIME = 864_000_00; // 1 day in milliseconds
-  static final String SIGNINGKEY = "SecretKeySecretKeySecretKeySecretKey";
+  static final String SIGNINGKEY = "VeryLongLongLongLongLongLongLongLongLongLongLongLongLongLongLongSecretKey";
   static final String PREFIX = "Bearer";
 
   static public void addToken(HttpServletResponse res, String username) {
