@@ -15,10 +15,10 @@ public class Hello implements Serializable {
 	
     @Id
     @GeneratedValue
-    private final long id;
+    private long id;
 
     @NotNull
     @Size(min = 1, max = 255)
-    private final String content;
+    private String content;
 
 }
