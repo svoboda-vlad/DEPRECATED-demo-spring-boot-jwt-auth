@@ -25,7 +25,7 @@ public class HelloController {
     }
 	
     @PostMapping("/hello")
-    public List<Hello> createHello(@Valid @RequestBody Hello hello) {
+    public Hello createHello(@Valid @RequestBody Hello hello) {
         return helloRepository.save(hello);	
     }
 
