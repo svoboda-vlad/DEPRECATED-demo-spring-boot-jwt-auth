@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 
 @Data
 @Entity
@@ -18,7 +18,7 @@ public class Hello implements Serializable {
     private final long id;
 
     @NotNull
-    @Max(255)	
+    @Size(min = 1, max = 255)
     private final String content;
 
 }
