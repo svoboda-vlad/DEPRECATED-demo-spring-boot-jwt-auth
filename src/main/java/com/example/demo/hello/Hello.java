@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.hello;
 
 import lombok.Data;
 import java.io.Serializable;
