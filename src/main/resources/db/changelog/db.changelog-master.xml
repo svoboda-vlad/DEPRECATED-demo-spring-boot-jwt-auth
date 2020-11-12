@@ -11,7 +11,7 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
             <column name="id" type="int" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="lastname" type="varchar(50)">
+            <column name="content" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
