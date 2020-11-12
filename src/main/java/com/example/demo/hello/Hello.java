@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.persistence.GenerationType;
 
 @Data
 @Entity
@@ -14,7 +15,7 @@ public class Hello implements Serializable {
     private static final long serialVersionUID = 1L;
 	
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotNull
