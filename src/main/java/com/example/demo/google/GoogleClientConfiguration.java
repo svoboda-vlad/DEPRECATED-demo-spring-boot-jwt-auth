@@ -27,7 +27,7 @@ public class GoogleClientConfiguration {
     @Bean
     public GoogleIdTokenVerifier googleIdTokenVerifier(JacksonFactory jacksonFactory, HttpTransport httpTransport) {
         return new GoogleIdTokenVerifier.Builder(httpTransport, jacksonFactory)
-                .setIssuer(googleClientProperties.getIssuer())
+                // .setIssuer(googleClientProperties.getIssuer())
                 .setAudience(Arrays.asList(googleClientProperties.getClients()))
                 .build();
     }
