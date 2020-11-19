@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Configuration
-@ConfigurationProperties(prefix = "google.oauth")
+@ConfigurationProperties(prefix = "google.client")
 public class GoogleClientProperties {
 
-    private String[] clients;
-    private String issuer;
+    private String[] clientIds;
 
 }
