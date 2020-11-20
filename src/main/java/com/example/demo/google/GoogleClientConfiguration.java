@@ -11,15 +11,14 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableConfigurationProperties(GoogleClientProperties.class)
+@RequiredArgsConstructor
 public class GoogleClientConfiguration {
 
     private final GoogleClientProperties googleClientProperties;
-
-    public GoogleClientConfiguration(GoogleClientProperties googleClientProperties) {
-        this.googleClientProperties = googleClientProperties;
-    }
 
     @Bean
     public GoogleIdTokenVerifier googleIdTokenVerifier(JacksonFactory jacksonFactory, HttpTransport httpTransport) {

@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 public class GoogleTokenController {
 
     private final GoogleTokenVerifier googleTokenVerifier;
-
-    public GoogleTokenController(GoogleTokenVerifier googleTokenVerifier) {
-        this.googleTokenVerifier = googleTokenVerifier;
-    }
 
     @PostMapping("/verify")
     public User verifyToken(@RequestBody IdToken idToken) throws GeneralSecurityException, IOException {
