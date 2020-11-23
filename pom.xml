@@ -19,7 +19,6 @@
 		<java.version>11</java.version>
 		<jjwt.version>0.11.2</jjwt.version>
 		<google-api.version>1.31.1</google-api.version>
-		<javassist.version>3.27.0-GA</javassist.version>
 	</properties>
 
 	<dependencies>
@@ -94,11 +93,6 @@
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
 			<version>${google-api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>${javassist.version}</version>
 		</dependency>
 	</dependencies>
 
