@@ -3,7 +3,7 @@ package com.example.demo.security;
 import lombok.Data;
 
 @Data
-public class AccountCredentials {
+public class UserCredentials {
 	
 	private String username;
 	private String password;
