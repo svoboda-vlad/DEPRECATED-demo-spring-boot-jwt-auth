@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,9 +20,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.demo.google.GoogleTokenVerifier;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	@Autowired
+	private GoogleTokenVerifier googleTokenVerifier;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -34,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.addFilterBefore(new LoginFilter("/login", authenticationManager()), 
 		UsernamePasswordAuthenticationFilter.class)
 		// Filter for the api/login-google requests
-		.addFilterBefore(new LoginGoogleFilter("/login-google", authenticationManager()), 
+		.addFilterBefore(new LoginGoogleFilter("/login-google", authenticationManager(), googleTokenVerifier()), 
 		UsernamePasswordAuthenticationFilter.class)
 	    // Filter for other requests to check JWT in header
 	    .addFilterBefore(new AuthenticationFilter(),
@@ -77,6 +83,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	      
 	      source.registerCorsConfiguration("/**", config);
 	      return source;
+	}
+	
+	public GoogleTokenVerifier googleTokenVerifier() {
+		return googleTokenVerifier;
 	}
 	
 }

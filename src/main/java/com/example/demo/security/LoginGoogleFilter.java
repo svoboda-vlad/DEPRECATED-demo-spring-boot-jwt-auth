@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,12 +23,12 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 
 public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 
-	@Autowired
-	private GoogleTokenVerifier googleTokenVerifier;
+	private final GoogleTokenVerifier googleTokenVerifier;
 
-	public LoginGoogleFilter(String url, AuthenticationManager authManager) {
+	public LoginGoogleFilter(String url, AuthenticationManager authManager, GoogleTokenVerifier googleTokenVerifier) {
 		super(new AntPathRequestMatcher(url));
 		setAuthenticationManager(authManager);
+		this.googleTokenVerifier = googleTokenVerifier;
 	}
 
 	@Override
