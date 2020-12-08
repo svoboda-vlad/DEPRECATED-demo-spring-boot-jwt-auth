@@ -24,6 +24,6 @@ public class GoogleTokenController {
             throw new RuntimeException("Unauthenticated User by google");
         }
         GoogleIdToken.Payload payload = googleIdToken.getPayload();
-        return new User(payload.get("given_name").toString(), payload.get("family_name").toString());
+        return new User(payload.get("given_name").toString(), payload.get("family_name").toString(), payload.get("sub").toString());
     }
 }

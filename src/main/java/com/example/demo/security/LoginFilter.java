@@ -26,7 +26,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
   @Override
   public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
-			throws AuthenticationException, IOException, ServletException {
+			throws AuthenticationException, IOException {
         UserCredentials creds = new ObjectMapper()
         .readValue(req.getInputStream(), UserCredentials.class);
         return getAuthenticationManager().authenticate(
