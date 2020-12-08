@@ -21,17 +21,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {	
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().cors().and().authorizeRequests()
-		.antMatchers(HttpMethod.POST, "/login").permitAll()
+		.antMatchers(HttpMethod.POST, "/login", "/login-google").permitAll()
 		.antMatchers("/h2-console/**", "/test").permitAll()		
 		.anyRequest().authenticated()
 		.and()
 		// Filter for the api/login requests
 		.addFilterBefore(new LoginFilter("/login", authenticationManager()), 
+		UsernamePasswordAuthenticationFilter.class)
+		// Filter for the api/login-google requests
+		.addFilterBefore(new LoginGoogleFilter("/login-google", authenticationManager()), 
 		UsernamePasswordAuthenticationFilter.class)
 	    // Filter for other requests to check JWT in header
 	    .addFilterBefore(new AuthenticationFilter(),
@@ -48,7 +51,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.roles("USER")
 				.build();
 
-		return new InMemoryUserDetailsManager(user);
+		UserDetails userGoogle =
+				 User.withUsername("108564931079495851483")
+					.password(encoder().encode(""))
+					.roles("USER")
+					.build();
+		
+		return new InMemoryUserDetailsManager(user, userGoogle);
 	}
 	
 	@Bean
@@ -69,4 +78,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	      source.registerCorsConfiguration("/**", config);
 	      return source;
 	}
+	
 }

@@ -8,4 +8,5 @@ import lombok.Data;
 public class User {
     private String givenName;
     private String familyName;
+    private String sub;
 }
