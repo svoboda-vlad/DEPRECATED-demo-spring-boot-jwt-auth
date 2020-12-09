@@ -29,6 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private GoogleTokenVerifier googleTokenVerifier;
 	
+	@Autowired
+	private AuthenticationService authenticationService;	
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().cors().and().authorizeRequests()
@@ -43,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.addFilterBefore(new LoginGoogleFilter("/login-google", authenticationManager(), googleTokenVerifier()), 
 		UsernamePasswordAuthenticationFilter.class)
 	    // Filter for other requests to check JWT in header
-	    .addFilterBefore(new AuthenticationFilter(),
+	    .addFilterBefore(new AuthenticationFilter(authenticationService()),
 		UsernamePasswordAuthenticationFilter.class)
 		.headers().frameOptions().disable();
 	}	
@@ -88,5 +91,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public GoogleTokenVerifier googleTokenVerifier() {
 		return googleTokenVerifier;
 	}
+	
+	public AuthenticationService authenticationService() {
+		return authenticationService;
+	}	
 	
 }

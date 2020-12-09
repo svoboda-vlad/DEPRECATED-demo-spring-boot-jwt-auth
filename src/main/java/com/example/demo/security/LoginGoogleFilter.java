@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,6 +19,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.demo.google.GoogleTokenVerifier;
 import com.example.demo.google.IdToken;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 
@@ -33,10 +36,9 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
-			throws AuthenticationException, IOException {
-		IdToken idToken = new ObjectMapper().readValue(req.getInputStream(), IdToken.class);
-
+			throws AuthenticationException {
 		try {
+			IdToken idToken = resolveIdToken(req);
 			GoogleIdToken googleIdToken = googleTokenVerifier.verify(idToken.getIdToken());
 			if (googleIdToken == null) {
 				throw new RuntimeException("Unauthenticated User by google");
@@ -44,18 +46,29 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 			GoogleIdToken.Payload payload = googleIdToken.getPayload();
 
 			return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-					payload.get("sub").toString(), "", Collections.emptyList()));
+					payload.get("sub").toString(), "", Collections.emptyList()));			
 		} catch (GeneralSecurityException e) {
-			throw new RuntimeException("Unauthenticated User by google");
+			throw new AuthenticationServiceException(e.toString());
 		} catch (IOException e) {
-			throw new RuntimeException("Unauthenticated User by google");
+			throw new AuthenticationServiceException(e.toString());
 		}
-
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		AuthenticationService.addToken(res, auth.getName());
+	}
+	
+	private IdToken resolveIdToken(HttpServletRequest request)  {		
+		try {
+			return new ObjectMapper().readValue(request.getInputStream(), IdToken.class);
+		} catch (JsonParseException e) {
+			throw new AuthenticationServiceException(e.toString());
+		} catch (JsonMappingException e) {
+			throw new AuthenticationServiceException(e.toString());
+		} catch (IOException e) {
+			throw new AuthenticationServiceException(e.toString());
+		}
 	}
 }

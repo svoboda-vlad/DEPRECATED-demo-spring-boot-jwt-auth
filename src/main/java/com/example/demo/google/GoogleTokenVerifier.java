@@ -16,7 +16,7 @@ public class GoogleTokenVerifier {
 
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
-    public GoogleIdToken verify(String idToken) throws GeneralSecurityException, IOException {
+    public GoogleIdToken verify(String idToken) throws GeneralSecurityException, IOException, IllegalArgumentException {
         return googleIdTokenVerifier.verify(idToken);
     }
 }
