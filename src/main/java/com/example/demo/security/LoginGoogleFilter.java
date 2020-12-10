@@ -1,7 +1,6 @@
 package com.example.demo.security;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 import javax.servlet.FilterChain;
@@ -41,15 +40,12 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 			IdToken idToken = resolveIdToken(req);
 			GoogleIdToken googleIdToken = googleTokenVerifier.verify(idToken.getIdToken());
 			if (googleIdToken == null) {
-				throw new RuntimeException("Unauthenticated User by google");
+				throw new AuthenticationServiceException("Unauthenticated user by Google");
 			}
 			GoogleIdToken.Payload payload = googleIdToken.getPayload();
-
 			return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
 					payload.get("sub").toString(), "", Collections.emptyList()));			
-		} catch (GeneralSecurityException e) {
-			throw new AuthenticationServiceException(e.toString());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new AuthenticationServiceException(e.toString());
 		}
 	}
