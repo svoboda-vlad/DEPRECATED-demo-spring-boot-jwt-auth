@@ -14,10 +14,16 @@ import org.springframework.web.filter.GenericFilterBean;
 
 public class AuthenticationFilter extends GenericFilterBean {
 
+    private final AuthenticationService authenticationService;
+
+    public AuthenticationFilter(AuthenticationService authenticationService) {
+    	this.authenticationService = authenticationService;
+    }	
+	
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
-    Authentication authentication = AuthenticationService.getAuthentication((HttpServletRequest)request);
+    Authentication authentication = authenticationService.getAuthentication((HttpServletRequest)request);
     
     SecurityContextHolder.getContext().setAuthentication(authentication);
     filterChain.doFilter(request, response);
