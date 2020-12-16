@@ -14,21 +14,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GoogleTokenController {
 
-    private final GoogleTokenVerifier googleTokenVerifier;
+	private final GoogleTokenVerifier googleTokenVerifier;
 
-    @PostMapping("/verify")
-    public ResponseEntity<User> verifyToken(@RequestBody IdToken idToken) {
-        GoogleIdToken googleIdToken;
-		try {
-			googleIdToken = googleTokenVerifier.verify(idToken.getIdToken());
-	        if (googleIdToken == null) {
-	            throw new RuntimeException("Unauthenticated user by Google");
-	        }
-	        GoogleIdToken.Payload payload = googleIdToken.getPayload();
-	        User user = new User(payload.get("given_name").toString(), payload.get("family_name").toString(), payload.get("sub").toString());
-	        return new ResponseEntity<>(user, HttpStatus.OK);			
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-		}		
-    }
+	@PostMapping("/verify")
+	public ResponseEntity<User> verifyToken(@RequestBody IdToken idToken) {
+		GoogleIdToken googleIdToken = googleTokenVerifier.verify(idToken.getIdToken());
+		if (googleIdToken == null) {
+			return new ResponseEntity<>(null, HttpStatus.OK);
+		}
+		GoogleIdToken.Payload payload = googleIdToken.getPayload();
+		User user = new User(payload.get("given_name").toString(), payload.get("family_name").toString(),
+				payload.get("sub").toString());
+		return new ResponseEntity<>(user, HttpStatus.OK);
+	}
 }
