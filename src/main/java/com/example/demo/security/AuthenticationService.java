@@ -10,6 +10,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,9 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class AuthenticationService {
+	
+	private final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
+	
   static final long EXPIRY_MINS = 60L;
   // We need a signing key, so we'll create one just for this example. Usually
   // the key would be read from your application configuration instead.
@@ -74,8 +79,9 @@ public class AuthenticationService {
           }
           return claims;
       } catch (JwtException | IllegalArgumentException e) {
-          return null;
-      }      
+          log.info("JWT token validation failed: {}. JWT token: {}.", e.getMessage(), token);
+      }
+      return null;
   }
   
 	private String getUsername(Jws<Claims> claims) {
