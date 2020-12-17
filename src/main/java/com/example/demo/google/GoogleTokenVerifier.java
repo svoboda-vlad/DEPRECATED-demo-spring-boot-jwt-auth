@@ -22,7 +22,9 @@ public class GoogleTokenVerifier {
 
 	public GoogleIdToken verify(String idToken) {
 		try {
-			return googleIdTokenVerifier.verify(idToken);
+			GoogleIdToken token = googleIdTokenVerifier.verify(idToken);
+			if (token == null) log.info("ID token verification by Google failed. ID token: {}.", idToken);
+			return token;
 		} catch (GeneralSecurityException e) {
 			log.info("ID token verification by Google failed: {}. ID token: {}.", e.getMessage(), idToken);
 		} catch (IOException e) {

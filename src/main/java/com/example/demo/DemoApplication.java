@@ -4,7 +4,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.security.User;
 import com.example.demo.security.UserRepository;
@@ -17,7 +16,7 @@ public class DemoApplication {
 	}
 
 	@Bean
-	public CommandLineRunner dataLoader(UserRepository userRepo, PasswordEncoder encoder) {
+	public CommandLineRunner dataLoader(UserRepository userRepo) {
 		return new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
