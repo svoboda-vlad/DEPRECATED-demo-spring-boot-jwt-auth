@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +27,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 
 public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 
+	private final Logger log = LoggerFactory.getLogger(LoginGoogleFilter.class);
+	
 	private final GoogleTokenVerifier googleTokenVerifier;
 
 	public LoginGoogleFilter(String url, AuthenticationManager authManager, GoogleTokenVerifier googleTokenVerifier) {
@@ -36,18 +40,15 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException {
-		try {
 			IdToken idToken = resolveIdToken(req);
+			if (idToken == null) throw new AuthenticationServiceException("ID token parsing failed.");
+			
 			GoogleIdToken googleIdToken = googleTokenVerifier.verify(idToken.getIdToken());
-			if (googleIdToken == null) {
-				throw new AuthenticationServiceException("Unauthenticated user by Google");
-			}
+			if (googleIdToken == null) throw new AuthenticationServiceException("Token verification failed: " + idToken);			
+
 			GoogleIdToken.Payload payload = googleIdToken.getPayload();
 			return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-					payload.get("sub").toString(), "", Collections.emptyList()));			
-		} catch (Exception e) {
-			throw new AuthenticationServiceException(e.toString());
-		}
+					payload.get("sub").toString(), "", Collections.emptyList()));
 	}
 
 	@Override
@@ -60,11 +61,12 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 		try {
 			return new ObjectMapper().readValue(request.getInputStream(), IdToken.class);
 		} catch (JsonParseException e) {
-			throw new AuthenticationServiceException(e.toString());
+			log.info("Token parsing from request body failed: {}.", e.getMessage());
 		} catch (JsonMappingException e) {
-			throw new AuthenticationServiceException(e.toString());
+			log.info("Token parsing from request body failed: {}.", e.getMessage());
 		} catch (IOException e) {
-			throw new AuthenticationServiceException(e.toString());
+			log.info("Token parsing from request body failed: {}.", e.getMessage());
 		}
+		return null;
 	}
 }
