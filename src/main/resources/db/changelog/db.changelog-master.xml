@@ -16,5 +16,28 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
             </column>
         </createTable>
     </changeSet>
+    
+    <changeSet id="20201211135900" author="svoboda-vlad">
+        <createTable tableName="user">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="given_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="family_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locale" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>                        
+        </createTable>
+    </changeSet>    
 
 </databaseChangeLog>

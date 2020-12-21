@@ -1,7 +1,6 @@
 package com.example.demo.security;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -41,14 +40,17 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException {
 			IdToken idToken = resolveIdToken(req);
-			if (idToken == null) throw new AuthenticationServiceException("ID token parsing failed.");
+			if (idToken == null) throw new AuthenticationServiceException("ID token parsing from request body failed.");
 			
 			GoogleIdToken googleIdToken = googleTokenVerifier.verify(idToken.getIdToken());
-			if (googleIdToken == null) throw new AuthenticationServiceException("Token verification failed: " + idToken);			
+			if (googleIdToken == null) throw new AuthenticationServiceException("ID token verification by Google failed.");			
 
 			GoogleIdToken.Payload payload = googleIdToken.getPayload();
-			return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-					payload.get("sub").toString(), "", Collections.emptyList()));
+			String sub = payload.get("sub").toString();
+			log.info("Authenticating user {}", sub);
+			Authentication auth = this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(sub, sub));
+			log.info("User: {} authenticated: {}", sub, auth.isAuthenticated());
+			return auth;
 	}
 
 	@Override
@@ -61,12 +63,13 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 		try {
 			return new ObjectMapper().readValue(request.getInputStream(), IdToken.class);
 		} catch (JsonParseException e) {
-			log.info("Token parsing from request body failed: {}.", e.getMessage());
+			log.info("ID token parsing from request body failed: {}.", e.getMessage());
 		} catch (JsonMappingException e) {
-			log.info("Token parsing from request body failed: {}.", e.getMessage());
+			log.info("ID token parsing from request body failed: {}.", e.getMessage());
 		} catch (IOException e) {
-			log.info("Token parsing from request body failed: {}.", e.getMessage());
+			log.info("ID token parsing from request body failed: {}.", e.getMessage());
 		}
 		return null;
 	}
+	
 }
