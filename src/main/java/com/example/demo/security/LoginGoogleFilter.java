@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,11 +30,14 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 	private final Logger log = LoggerFactory.getLogger(LoginGoogleFilter.class);
 	
 	private final GoogleTokenVerifier googleTokenVerifier;
+	
+	private final UserRepository userRepo;
 
-	public LoginGoogleFilter(String url, AuthenticationManager authManager, GoogleTokenVerifier googleTokenVerifier) {
+	public LoginGoogleFilter(String url, AuthenticationManager authManager, GoogleTokenVerifier googleTokenVerifier, UserRepository userRepo) {
 		super(new AntPathRequestMatcher(url));
 		setAuthenticationManager(authManager);
 		this.googleTokenVerifier = googleTokenVerifier;
+		this.userRepo = userRepo;
 	}
 
 	@Override
@@ -49,6 +53,7 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 			String sub = payload.get("sub").toString();
 			log.info("Authenticating user {}", sub);
 			Authentication auth = this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(sub, sub));
+			this.updateLastLoginDateTime(auth);
 			log.info("User: {} authenticated: {}", sub, auth.isAuthenticated());
 			return auth;
 	}
@@ -70,6 +75,12 @@ public class LoginGoogleFilter extends AbstractAuthenticationProcessingFilter {
 			log.info("ID token parsing from request body failed: {}.", e.getMessage());
 		}
 		return null;
+	}
+	
+	private void updateLastLoginDateTime(Authentication auth) {
+		User user = userRepo.findByUsername(auth.getName());
+		user.setLastLoginDateTime(LocalDateTime.now());
+		userRepo.save(user);
 	}
 	
 }
