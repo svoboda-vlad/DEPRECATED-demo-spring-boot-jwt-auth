@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CurrentUserController {
-
+	
 	@GetMapping("/current-user")
-	public String getCurrentUser() {
+	public UserInfo getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		return authentication.getPrincipal().toString();
+		return new UserInfo(authentication.getPrincipal().toString());
 	}
+	
 }
