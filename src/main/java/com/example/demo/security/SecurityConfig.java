@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,7 +50,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	    // Filter for other requests to check JWT in header
 	    .addFilterBefore(new AuthenticationFilter(authenticationService()),
 		UsernamePasswordAuthenticationFilter.class)
-		.headers().frameOptions().disable();
+		.headers().frameOptions().disable()
+		.and()
+		.sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}	
 		
 	@Override
