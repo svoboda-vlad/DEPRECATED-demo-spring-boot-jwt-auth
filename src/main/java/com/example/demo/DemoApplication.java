@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import java.time.LocalDateTime;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,7 +22,10 @@ public class DemoApplication {
 		return new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
-				userRepo.save(new User("108564931079495851483", "svoboda.vladimir1@gmail.com", "Vladimir", "Svoboda", "cs"));
+				String username = "108564931079495851483";
+				if (userRepo.findByUsername(username) == null) {
+					userRepo.save(new User(1, username, "svoboda.vladimir1@gmail.com", "Vladimir", "Svoboda", "cs", LocalDateTime.now()));					
+				}
 			}
 		};
 	}
