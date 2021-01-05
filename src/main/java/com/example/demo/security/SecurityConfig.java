@@ -40,8 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().cors().and().authorizeRequests()
 		.antMatchers(HttpMethod.POST, "/login-google").permitAll()
-		.antMatchers("/current-user").permitAll()
-		.antMatchers("/h2-console/**", "/test").permitAll()		
+		.antMatchers("/h2-console/**", "/test", "/current-user").permitAll()		
 		.anyRequest().authenticated()
 		.and()
 		// Filter for the api/login-google requests
