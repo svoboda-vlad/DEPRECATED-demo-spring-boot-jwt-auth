@@ -16,14 +16,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor(access=AccessLevel.PRIVATE, force=true)
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 		
 	private static final long serialVersionUID = 1L;
@@ -40,23 +40,23 @@ public class User implements UserDetails {
     @NotNull
     @Size(min = 1, max = 255)
     // the account's ID from the sub claim of the ID token
-    private final String username;
+    private String username;
 
     @NotNull
     @Size(min = 1, max = 255)
-    private final String email;
+    private String email;
     
     @NotNull
     @Size(min = 1, max = 255)
-    private final String givenName;
+    private String givenName;
 
     @NotNull
     @Size(min = 1, max = 255)
-    private final String familyName;
+    private String familyName;
     
     @NotNull
     @Size(min = 1, max = 255)
-    private final String locale;
+    private String locale;
     
     private LocalDateTime lastLoginDateTime;
         
