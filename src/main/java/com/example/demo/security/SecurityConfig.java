@@ -31,7 +31,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private AuthenticationService authenticationService;
 
 	@Autowired
-	private UserDetailsService userDetailsService;	
+	private UserDetailsService userDetailsService;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -41,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.anyRequest().authenticated()
 		.and()
 		// Filter for the api/login-google requests
-		.addFilterBefore(new LoginGoogleFilter("/login-google", authenticationManager(), googleTokenVerifier()), 
+		.addFilterBefore(new LoginGoogleFilter("/login-google", authenticationManager(), googleTokenVerifier(), userRepository()), 
 		UsernamePasswordAuthenticationFilter.class)
 	    // Filter for other requests to check JWT in header
 	    .addFilterBefore(new AuthenticationFilter(authenticationService()),
@@ -80,6 +83,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	public AuthenticationService authenticationService() {
 		return authenticationService;
+	}
+	
+	public UserRepository userRepository() {
+		return userRepository;
 	}	
 	
 }

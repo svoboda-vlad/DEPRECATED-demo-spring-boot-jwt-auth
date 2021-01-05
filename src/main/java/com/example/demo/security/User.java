@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -56,6 +57,8 @@ public class User implements UserDetails {
     @NotNull
     @Size(min = 1, max = 255)
     private final String locale;
+    
+    private LocalDateTime lastLoginDateTime;
         
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
