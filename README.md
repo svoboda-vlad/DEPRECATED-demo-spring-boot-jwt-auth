@@ -148,6 +148,8 @@ Login endpoints:
 - POST "/login-google"
 {"idToken": "eyabcdef"}
 
+authentication using only valid ID token from Google for "108564931079495851483"
+
 LoginGoogleFilter - updateLastLoginDateTime
 
 SessionCreationPolicy.STATELESS
