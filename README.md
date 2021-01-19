@@ -1,8 +1,75 @@
 # demo-spring-boot-jwt-auth
 branches:
-1) "h2-inmemoryauth"
-2) "master"
-## A. branch "h2-inmemoryauth"
+1) "master"
+2) "h2-inmemoryauth"
+
+## A. branch "master"
+## REMOVED compared to "h2-inmemoryauth"
+
+## 1) REST API endpoints:
+
+unrestricted: POST "/login" (LoginFilter)
+restricted: POST "/verify" (GoogleTokenController)
+
+## 2) Models:
+
+User - givenName (String), familyName (String), sub (String)
+- returned from endpoint: POST "/verify"
+UserCredentials - username (String), password (String)
+- no endpoint
+
+## ADDED compared to "h2-inmemoryauth"
+## 1) REST API endpoints:
+
+unrestricted:
+GET "/current-user" (CurrentUserController)
+
+## 2) Models:
+
+User - no endpoint, used for authentication
+- id (long)
+- username (String, min = 1, max = 255)
+- email (String, min = 1, max = 255)
+- givenName (String, min = 1, max = 255)
+- familyName (String, min = 1, max = 255)
+- locale (String, min = 1, max = 255)
+- lastLoginDateTime (LocalDateTime)
+
+UserInfo - returned from endpoint "/current-user"
+- username (String)
+- lastLoginDateTime (LocalDateTime)
+
+## 3) Database
+
+DB tables: user
+- id (int PRIMARY KEY)
+- username (varchar(255) NOT NULL)
+- email (varchar(255) NOT NULL)
+- given_name (varchar(255) NOT NULL)
+- family_name (varchar(255) NOT NULL)
+- locale (varchar(255) NOT NULL)
+- last_login_date_time (timestamp)
+
+## 4) Authentication:
+
+UserDetailsService + NoOpPasswordEncoder
+UserService, UserRepository
+
+CommandLineRunner - default users
+username: "108564931079495851483"
+
+Login endpoints:
+- POST "/login-google"
+{"idToken": "eyabcdef"}
+
+authentication using only valid ID token from Google for "108564931079495851483"
+
+LoginGoogleFilter - updateLastLoginDateTime
+
+SessionCreationPolicy.STATELESS
+
+
+## B. branch "h2-inmemoryauth"
 
 ## 1) REST API endpoints:
 http://localhost:8080/
@@ -88,68 +155,3 @@ spring.h2.console.enabled=true
 spring.h2.console.settings.web-allow-others=true
 spring.datasource.generate-unique-name=false
 google.client.clientids=733460469950-84s81fm32dvqku5js9rvlf6llqekr6l4.apps.googleusercontent.com
-
-## B. branch "master"
-## REMOVED compared to "h2-inmemoryauth"
-
-## 1) REST API endpoints:
-
-unrestricted: POST "/login" (LoginFilter)
-restricted: POST "/verify" (GoogleTokenController)
-
-## 2) Models:
-
-User - givenName (String), familyName (String), sub (String)
-- returned from endpoint: POST "/verify"
-UserCredentials - username (String), password (String)
-- no endpoint
-
-## ADDED compared to "h2-inmemoryauth"
-## 1) REST API endpoints:
-
-unrestricted:
-GET "/current-user" (CurrentUserController)
-
-## 2) Models:
-
-User - no endpoint, used for authentication
-- id (long)
-- username (String, min = 1, max = 255)
-- email (String, min = 1, max = 255)
-- givenName (String, min = 1, max = 255)
-- familyName (String, min = 1, max = 255)
-- locale (String, min = 1, max = 255)
-- lastLoginDateTime (LocalDateTime)
-
-UserInfo - returned from endpoint "/current-user"
-- username (String)
-- lastLoginDateTime (LocalDateTime)
-
-## 3) Database
-
-DB tables: user
-- id (int PRIMARY KEY)
-- username (varchar(255) NOT NULL)
-- email (varchar(255) NOT NULL)
-- given_name (varchar(255) NOT NULL)
-- family_name (varchar(255) NOT NULL)
-- locale (varchar(255) NOT NULL)
-- last_login_date_time (timestamp)
-
-## 4) Authentication:
-
-UserDetailsService + NoOpPasswordEncoder
-UserService, UserRepository
-
-CommandLineRunner - default users
-username: "108564931079495851483"
-
-Login endpoints:
-- POST "/login-google"
-{"idToken": "eyabcdef"}
-
-authentication using only valid ID token from Google for "108564931079495851483"
-
-LoginGoogleFilter - updateLastLoginDateTime
-
-SessionCreationPolicy.STATELESS
