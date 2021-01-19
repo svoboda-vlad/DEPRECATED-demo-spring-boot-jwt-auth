@@ -39,6 +39,7 @@ DB tables: user
 ## Authentication
 
 UserDetailsService + NoOpPasswordEncoder - no passwords used
+
 UserService, UserRepository
 
 CommandLineRunner - default user
