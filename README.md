@@ -12,7 +12,7 @@ GET "/current-user" (CurrentUserController)
 
 ## Models
 
-User - no endpoint, used for authentication
+User - no endpoint yet (TODO registration), used for authentication
 - id (long)
 - username (String, min = 1, max = 255)
 - email (String, min = 1, max = 255)
