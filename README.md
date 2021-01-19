@@ -90,6 +90,20 @@ spring.datasource.generate-unique-name=false
 google.client.clientids=733460469950-84s81fm32dvqku5js9rvlf6llqekr6l4.apps.googleusercontent.com
 
 ## B. branch "master"
+## REMOVED compared to "h2-inmemoryauth"
+
+## 1) REST API endpoints:
+
+unrestricted: POST "/login" (LoginFilter)
+restricted: POST "/verify" (GoogleTokenController)
+
+## 2) Models:
+
+User - givenName (String), familyName (String), sub (String)
+- returned from endpoint: POST "/verify"
+UserCredentials - username (String), password (String)
+- no endpoint
+
 ## ADDED compared to "h2-inmemoryauth"
 ## 1) REST API endpoints:
 
@@ -137,17 +151,3 @@ Login endpoints:
 LoginGoogleFilter - updateLastLoginDateTime
 
 SessionCreationPolicy.STATELESS
-
-## REMOVED compared to "h2-inmemoryauth"
-
-## 1) REST API endpoints:
-
-unrestricted: POST "/login" (LoginFilter)
-restricted: POST "/verify" (GoogleTokenController)
-
-## 2) Models:
-
-User - givenName (String), familyName (String), sub (String)
-- returned from endpoint: POST "/verify"
-UserCredentials - username (String), password (String)
-- no endpoint
