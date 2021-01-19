@@ -4,7 +4,7 @@ Branches:
 2) h2-inmemoryauth
 
 ## 1) master branch
-differences compared to "h2-inmemoryauth"
+differences compared to h2-inmemoryauth branch
 ## REST API endpoints
 
 unrestricted:
