@@ -1,5 +1,4 @@
 # demo-spring-boot-jwt-auth
-# demo-spring-boot-jwt-auth
 branches:
 1) "h2-inmemoryauth"
 2) "master"
