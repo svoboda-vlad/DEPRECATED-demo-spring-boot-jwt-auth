@@ -43,7 +43,8 @@ UserDetailsService + NoOpPasswordEncoder - no passwords used
 UserService, UserRepository
 
 CommandLineRunner - default user
-username: "108564931079495851483"
+
+- username: "108564931079495851483"
 
 Login endpoints:
 - POST "/login-google"
