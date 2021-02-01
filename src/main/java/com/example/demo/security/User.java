@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor(access=AccessLevel.PRIVATE, force=true)
 @AllArgsConstructor
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
 		
 	private static final long serialVersionUID = 1L;
 	
