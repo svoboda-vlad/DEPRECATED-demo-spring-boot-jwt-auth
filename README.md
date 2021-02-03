@@ -77,5 +77,3 @@ spring.h2.console.enabled=true
 spring.h2.console.settings.web-allow-others=true
 
 spring.datasource.generate-unique-name=false
-
-google.client.clientids=733460469950-84s81fm32dvqku5js9rvlf6llqekr6l4.apps.googleusercontent.com
