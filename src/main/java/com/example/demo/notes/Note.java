@@ -1,4 +1,4 @@
-package com.example.demo.hello;
+package com.example.demo.notes;
 
 import lombok.Data;
 import java.io.Serializable;
@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 
 @Data
 @Entity
-public class Hello implements Serializable {
+public class Note implements Serializable {
     private static final long serialVersionUID = 1L;
 	
     @Id

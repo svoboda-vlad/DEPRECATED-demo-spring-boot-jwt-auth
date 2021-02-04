@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().cors().and().authorizeRequests()
 		.antMatchers(HttpMethod.POST, "/login").permitAll()
-		.antMatchers("/h2-console/**", "/test", "/current-user").permitAll()		
+		.antMatchers("/h2-console/**", "/hello", "/current-user").permitAll()		
 		.anyRequest().authenticated()
 		.and()
 		// Filter for the api/login requests

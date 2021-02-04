@@ -4,20 +4,20 @@
 http://localhost:8080/
 
 unrestricted:
-- GET "/test" (TestController)
+- GET "/hello" (HelloController)
 - POST "/login" (LoginFilter)
 - GET "/current-user" (CurrentUserController)
 - GET "/h2-console/**"
 
 restricted:
-- GET + POST "/hello" (HelloController)
+- GET + POST "/note" (NoteController)
 
 ## Models
 
-Test - id (int), text (String)
-- GET: [{"id":1,"text":"test 123"}]
+Hello - text (String)
+- GET: [{"text":"Hello World!"}]
 
-Hello - id (long), content (String, min = 1, max = 255)
+Note - id (long), content (String, min = 1, max = 255)
 - GET: [{"id":9,"content":"hello4"},{"id":10,"content":"hello4"}]
 - POST: {"content": "hello4"}
 
@@ -32,7 +32,7 @@ UserInfo - returned from endpoint "/current-user"
 H2 in-memory database + liquibase
 
 Database tables:
-- hello - id (int PRIMARY KEY), content (varchar(255) NOT NULL)
+- note - id (int PRIMARY KEY), content (varchar(255) NOT NULL)
 
 ## Authentication
 
