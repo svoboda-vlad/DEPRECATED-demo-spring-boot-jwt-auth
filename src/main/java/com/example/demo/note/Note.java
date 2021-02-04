@@ -1,4 +1,4 @@
-package com.example.demo.notes;
+package com.example.demo.note;
 
 import lombok.Data;
 import java.io.Serializable;
