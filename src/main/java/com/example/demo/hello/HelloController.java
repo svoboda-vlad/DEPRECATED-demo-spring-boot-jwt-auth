@@ -14,6 +14,11 @@ public class HelloController {
 		return new Hello("Hello World!");
 	}
 	
+	@GetMapping("/hello-restricted")
+	public Hello sayHelloRestricted() {
+		return new Hello("Hello World! (restricted)");
+	}	
+	
 	@Data
 	@AllArgsConstructor
 	private class Hello {

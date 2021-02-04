@@ -10,6 +10,7 @@ unrestricted:
 - GET "/h2-console/**"
 
 restricted:
+- GET "/hello-restricted" (HelloController)
 - GET + POST "/note" (NoteController)
 
 ## Models
@@ -24,8 +25,9 @@ Note - id (long), content (String, min = 1, max = 255)
 User - username (String), password (String)
 - no endpoint
 
-UserInfo - returned from endpoint "/current-user"
-- username (String)
+UserInfo - username (String)
+- GET: {"username":"user"}
+- returned from endpoint "/current-user"
 
 ## Database
 
