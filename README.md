@@ -1,4 +1,4 @@
-# demo-spring-boot-jwt-auth
+# Demo - Spring Boot with JWT authentication (demo-spring-boot-jwt-auth)
 
 ## REST API endpoints
 http://localhost:8080/
