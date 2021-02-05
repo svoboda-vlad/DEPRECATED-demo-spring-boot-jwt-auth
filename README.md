@@ -7,6 +7,8 @@ unrestricted:
 - GET "/hello" (HelloController)
 - POST "/login" (LoginFilter)
 - GET "/current-user" (CurrentUserController)
+
+unrestricted, but not REST API:
 - GET "/h2-console/**"
 
 restricted:
