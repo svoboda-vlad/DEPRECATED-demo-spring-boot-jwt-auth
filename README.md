@@ -38,6 +38,8 @@ H2 in-memory database + liquibase
 Database tables:
 - note - id (int PRIMARY KEY), content (varchar(255) NOT NULL)
 
+CommandLineRunner - default notes (note 123, note 124)
+
 ## Authentication
 
 InMemoryUserDetailsManager + BCryptPasswordEncoder
