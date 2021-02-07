@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CurrentUserController {
 	
+	private static final String CURRENT_USER_URL = "/current-user";
 	private final UserDetailsService userService;
 
 	public CurrentUserController(UserDetailsService userService) {
 		this.userService = userService;
-	}	
+	}
 
-	@GetMapping("/current-user")
+	@GetMapping(CURRENT_USER_URL)
 	public ResponseEntity<UserInfo> getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		UserDetails userDetails = userService.loadUserByUsername(authentication.getName());
@@ -26,7 +27,7 @@ public class CurrentUserController {
 		if (userDetails == null) return new ResponseEntity<UserInfo>(HttpStatus.NOT_FOUND);
 		
 		UserInfo userInfo = new UserInfo(userDetails.getUsername());
-		return new ResponseEntity<UserInfo>(userInfo, HttpStatus.OK);
+		return ResponseEntity.ok(userInfo);
 	}
 	
 }

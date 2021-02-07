@@ -1,16 +1,22 @@
 package com.example.demo.note;
 
-import lombok.Data;
 import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.persistence.GenerationType;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Note implements Serializable {
     private static final long serialVersionUID = 1L;
 	
