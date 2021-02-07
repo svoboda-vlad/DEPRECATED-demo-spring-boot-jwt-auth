@@ -1,4 +1,4 @@
-# demo-spring-boot-jwt-auth
+# Demo - Spring Boot with JWT authentication (demo-spring-boot-jwt-auth)
 
 ## REST API endpoints
 http://localhost:8080/
@@ -7,6 +7,8 @@ unrestricted:
 - GET "/hello" (HelloController)
 - POST "/login" (LoginFilter)
 - GET "/current-user" (CurrentUserController)
+
+unrestricted, but not REST API:
 - GET "/h2-console/**"
 
 restricted:
