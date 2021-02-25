@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 public class CurrentUserController {
 	
@@ -19,6 +22,7 @@ public class CurrentUserController {
 		this.userService = userService;
 	}
 
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	@GetMapping(CURRENT_USER_URL)
 	public ResponseEntity<UserInfo> getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
