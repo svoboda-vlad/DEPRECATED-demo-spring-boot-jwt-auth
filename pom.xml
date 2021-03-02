@@ -19,6 +19,9 @@
 		<java.version>11</java.version>
 		<jjwt.version>0.11.2</jjwt.version>
 		<google-api.version>1.31.1</google-api.version>
+		<springdoc-openapi-ui.version>1.5.4</springdoc-openapi-ui.version>
+		<springdoc-openapi-security.version>1.5.4
+		</springdoc-openapi-security.version>
 	</properties>
 
 	<dependencies>
@@ -88,6 +91,16 @@
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>${springdoc-openapi-ui.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-security</artifactId>
+			<version>${springdoc-openapi-security.version}</version>
 		</dependency>
 	</dependencies>
 

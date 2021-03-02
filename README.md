@@ -15,6 +15,10 @@ restricted:
 - GET "/hello-restricted" (HelloController)
 - GET + POST "/note" (NoteController)
 
+Swagger / OpenAPI
+
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
 ## Models
 
 Hello - text (String)
@@ -46,8 +50,24 @@ InMemoryUserDetailsManager + BCryptPasswordEncoder
 - username: "user", password: "password"
 
 Login endpoints:
+
 - POST "/login"
+
 {"username": "user", "password": "password"}
+
+cURL: 
+
+WINDOWS
+
+```
+curl -i -d "{\"username\": \"user\", \"password\": \"password\"}" http://localhost:8080/login
+```
+
+LINUX
+
+```
+curl -i -d '{"username": "user", "password": "password"}' http://localhost:8080/login
+```
 
 SessionCreationPolicy.STATELESS
 
