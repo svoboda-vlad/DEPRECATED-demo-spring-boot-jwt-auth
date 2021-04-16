@@ -1,6 +1,9 @@
 package com.example.demo;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
@@ -8,8 +11,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.example.demo.note.Note;
-import com.example.demo.note.NoteRepository;
+import com.example.demo.exchangerate.CurrencyCode;
+import com.example.demo.exchangerate.CurrencyCodeRepository;
+import com.example.demo.exchangerate.ExchangeRate;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -23,17 +27,21 @@ public class DemoApplication {
 	}
 	
 	@Bean
-	public CommandLineRunner dataLoader(NoteRepository noteRepo) {
+	public CommandLineRunner dataLoader(CurrencyCodeRepository currencyCodeRepo) {
 		return new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
-				Note note1 = new Note(0, "note 123");
-				Note note2 = new Note(0, "note 124");
-				List<Note> notes = new ArrayList<Note>();
-				notes.add(note1);
-				notes.add(note2);
-				if (noteRepo.findAll().size() == 0) {
-					noteRepo.saveAll(notes);
+				CurrencyCode currencyCode1 = new CurrencyCode("EUR", "EMU", 1);
+				CurrencyCode currencyCode2 = new CurrencyCode("USD", "USA", 1);
+				currencyCode1.addExchangeRate(
+						new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1)
+						);
+				currencyCode2.addExchangeRate(
+						new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
+						);				
+				List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));				
+				if (currencyCodeRepo.findAll().size() == 0) {
+					currencyCodeRepo.saveAll(currencyCodes);
 				}
 			}
 		};
