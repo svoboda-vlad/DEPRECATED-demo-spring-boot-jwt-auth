@@ -47,7 +47,6 @@ public class ExchangeRate implements Serializable {
     @ManyToOne
     @JoinColumn(name = "currency_code_id")
     @NonNull
-    @JsonIgnoreProperties(value = { "exchangeRates" }) // ignored because lazy fetched
     private CurrencyCode currencyCode;
 	
 }

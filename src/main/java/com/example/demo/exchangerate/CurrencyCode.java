@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,7 +52,7 @@ public class CurrencyCode implements Serializable {
     // orphanRemoval - enable removing the related entity (exchange_rate)
     // fetch - lazy by default
     @OneToMany(mappedBy = "currencyCode", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties(value = { "currencyCode" }) // to avoid infinite recursion
+    @JsonIgnore // to avoid infinite recursion
 	private List<ExchangeRate> exchangeRates = new ArrayList<ExchangeRate>();
 
 	public void addExchangeRate(ExchangeRate exchangeRate) {
