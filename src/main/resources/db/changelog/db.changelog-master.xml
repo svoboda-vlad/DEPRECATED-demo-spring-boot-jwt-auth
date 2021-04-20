@@ -7,14 +7,40 @@
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
 http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
 
-	<changeSet id="20210204121200" author="svoboda-vlad">
-		<createTable tableName="note">
+	<changeSet id="20210416071500" author="svoboda-vlad">
+		<createTable tableName="currency_code">
 			<column name="id" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" />
 			</column>
-			<column name="content" type="varchar(255)">
+			<column name="currency_code" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="country" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="rate_qty" type="int">
 				<constraints nullable="false" />
 			</column>
 		</createTable>
+		
+		<createTable tableName="exchange_rate">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="rate_date" type="date">
+				<constraints nullable="false" />
+			</column>
+			<column name="rate" type="decimal(10,3)">
+				<constraints nullable="false" />
+			</column>
+			<column name="currency_code_id" type="int">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+        <addForeignKeyConstraint baseColumnNames="currency_code_id"
+                                 baseTableName="exchange_rate"
+                                 constraintName="fk_exchange_rate_currency_code_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="currency_code"/>		
 	</changeSet>
 </databaseChangeLog>

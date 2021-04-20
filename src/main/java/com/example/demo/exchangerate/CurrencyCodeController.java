@@ -1,4 +1,4 @@
-package com.example.demo.note;
+package com.example.demo.exchangerate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,23 +18,23 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class NoteController {
+public class CurrencyCodeController {
 	
-    private final NoteRepository noteRepository;
-    private static final String NOTE_URL = "/note";
+    private final CurrencyCodeRepository currencyCodeRepository;
+    private static final String CURRENCY_CODE_URL = "/currency-code";
 
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @GetMapping(NOTE_URL)
-    public ResponseEntity<List<Note>> getAllNotes() {
-        return ResponseEntity.ok(noteRepository.findAll());
+    @GetMapping(CURRENCY_CODE_URL)
+    public ResponseEntity<List<CurrencyCode>> getAllCurrencyCodes() {
+        return ResponseEntity.ok(currencyCodeRepository.findAll());
     }
 	
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @PostMapping(NOTE_URL)
-    public ResponseEntity<Note> createNote(@Valid @RequestBody Note note) throws URISyntaxException {
-        Note saved = noteRepository.save(note);
+    @PostMapping(CURRENCY_CODE_URL)
+    public ResponseEntity<CurrencyCode> createCurrencyCode(@Valid @RequestBody CurrencyCode currencyCode) throws URISyntaxException {
+    	CurrencyCode saved = currencyCodeRepository.save(currencyCode);
         return ResponseEntity
-                .created(new URI(NOTE_URL + "/" + saved.getId()))
+                .created(new URI(CURRENCY_CODE_URL + "/" + saved.getId()))
                 .body(saved);
     }
 
