@@ -10,10 +10,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.exchangerate.CurrencyCode;
 import com.example.demo.exchangerate.CurrencyCodeRepository;
 import com.example.demo.exchangerate.ExchangeRate;
+import com.example.demo.security.User;
+import com.example.demo.security.UserRepository;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -27,7 +30,7 @@ public class DemoApplication {
 	}
 	
 	@Bean
-	public CommandLineRunner dataLoader(CurrencyCodeRepository currencyCodeRepo) {
+	public CommandLineRunner dataLoader(CurrencyCodeRepository currencyCodeRepo, UserRepository userRepo, PasswordEncoder encoder) {
 		return new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
@@ -42,7 +45,13 @@ public class DemoApplication {
 				List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));				
 				if (currencyCodeRepo.findAll().size() == 0) {
 					currencyCodeRepo.saveAll(currencyCodes);
+				}				
+				
+				User user1 = new User("user", encoder.encode("password"));
+				if(userRepo.findAll().size() == 0) {
+					userRepo.save(user1);
 				}
+				
 			}
 		};
 	}

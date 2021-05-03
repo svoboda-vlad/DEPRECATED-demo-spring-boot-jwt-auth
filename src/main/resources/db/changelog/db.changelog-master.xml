@@ -22,7 +22,7 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 				<constraints nullable="false" />
 			</column>
 		</createTable>
-		
+
 		<createTable tableName="exchange_rate">
 			<column name="id" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" />
@@ -37,10 +37,22 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 				<constraints nullable="false" />
 			</column>
 		</createTable>
-        <addForeignKeyConstraint baseColumnNames="currency_code_id"
-                                 baseTableName="exchange_rate"
-                                 constraintName="fk_exchange_rate_currency_code_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="currency_code"/>		
+		<addForeignKeyConstraint
+			baseColumnNames="currency_code_id" baseTableName="exchange_rate"
+			constraintName="fk_exchange_rate_currency_code_id"
+			referencedColumnNames="id" referencedTableName="currency_code" />
+	</changeSet>
+	<changeSet id="20210503094200" author="svoboda-vlad">
+		<createTable tableName="user">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="username" type="varchar(255)">
+				<constraints unique="true" nullable="false" />
+			</column>
+			<column name="password" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
 	</changeSet>
 </databaseChangeLog>
