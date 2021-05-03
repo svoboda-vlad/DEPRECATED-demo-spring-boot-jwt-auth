@@ -11,16 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 public class CurrentUserController {
 	
 	private static final String CURRENT_USER_URL = "/current-user";
 	private final UserDetailsService userService;
-
-	public CurrentUserController(UserDetailsService userService) {
-		this.userService = userService;
-	}
 
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	@GetMapping(CURRENT_USER_URL)

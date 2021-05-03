@@ -6,6 +6,7 @@ http://localhost:8080/
 unrestricted:
 - GET "/hello" (HelloController)
 - POST "/login" (LoginFilter)
+- POST "/register" (RegistrationController)
 - GET "/current-user" (CurrentUserController)
 
 unrestricted, but not REST API:
@@ -43,12 +44,15 @@ ExchangeRate - id (long), rateDate (LocalDate), rate (BigDecimal, positive), cur
 "currencyCode": {"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1}}]
 - POST: {"rateDate": "2021-04-16","rate": 25.925,"currencyCode": {"id": 1}}
 
-User - username (String), password (String)
+User - id (long), username (String, min = 1, max = 50), password (String, min = 60, max = 60)
 - no endpoint
 
 UserInfo - username (String)
 - GET: {"username":"user"}
 - returned from endpoint "/current-user"
+
+RegistrationUser - username (String, min = 1, max = 50), password (String, min = 4, max = 100)
+- POST: {"username": "test","password": "test123"}
 
 ## Database
 
@@ -57,12 +61,13 @@ H2 in-memory database + liquibase
 Database tables:
 - currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
+- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL), password (VARCHAR(255) NOT NULL)
 
-CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021)
+CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user", password "password")
 
 ## Authentication
 
-InMemoryUserDetailsManager + BCryptPasswordEncoder
+UserDetailsService + BCryptPasswordEncoder
 - username: "user", password: "password"
 
 Login endpoints:
@@ -86,6 +91,26 @@ curl -i -d '{"username": "user", "password": "password"}' http://localhost:8080/
 ```
 
 SessionCreationPolicy.STATELESS
+
+## Registration
+
+- POST "/register"
+
+{"username": "test", "password": "test"}
+
+cURL: 
+
+WINDOWS
+
+```
+curl -i -d "{\"username\": \"test\", \"password\": \"test123\"}" http://localhost:8080/login
+```
+
+LINUX
+
+```
+curl -i -d '{"username": "test", "password": "test123"}' http://localhost:8080/login
+```
 
 ## Dependencies
 

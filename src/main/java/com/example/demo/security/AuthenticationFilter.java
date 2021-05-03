@@ -12,20 +12,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class AuthenticationFilter extends GenericFilterBean {
 
-    private final AuthenticationService authenticationService;
+	private final AuthenticationService authenticationService;
 
-    public AuthenticationFilter(AuthenticationService authenticationService) {
-    	this.authenticationService = authenticationService;
-    }	
-	
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
-      throws IOException, ServletException {
-    Authentication authentication = authenticationService.getAuthentication((HttpServletRequest)request);
-    
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    filterChain.doFilter(request, response);
-  }
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
+		Authentication authentication = authenticationService.getAuthentication((HttpServletRequest) request);
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		filterChain.doFilter(request, response);
+	}
 }
