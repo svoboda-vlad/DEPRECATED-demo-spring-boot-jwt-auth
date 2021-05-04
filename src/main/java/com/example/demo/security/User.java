@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -40,6 +41,8 @@ public class User implements UserDetails {
     @Size(min = 60, max = 60)
     @NonNull
     private String password;
+    
+    private LocalDateTime lastLoginDateTime;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,6 +67,10 @@ public class User implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+	
+	public void updateLastLoginDateTime() {
+		this.lastLoginDateTime = LocalDateTime.now();
 	}
 
 }

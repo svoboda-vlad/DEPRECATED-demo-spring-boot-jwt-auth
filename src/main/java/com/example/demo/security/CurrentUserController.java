@@ -19,6 +19,7 @@ public class CurrentUserController {
 	
 	private static final String CURRENT_USER_URL = "/current-user";
 	private final UserDetailsService userService;
+	private final UserRepository userRepository;
 
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	@GetMapping(CURRENT_USER_URL)
@@ -28,7 +29,8 @@ public class CurrentUserController {
 		
 		if (userDetails == null) return new ResponseEntity<UserInfo>(HttpStatus.NOT_FOUND);
 		
-		UserInfo userInfo = new UserInfo(userDetails.getUsername());
+		User user = userRepository.findByUsername(userDetails.getUsername());
+		UserInfo userInfo = new UserInfo(user.getUsername(), user.getLastLoginDateTime());
 		return ResponseEntity.ok(userInfo);
 	}
 	

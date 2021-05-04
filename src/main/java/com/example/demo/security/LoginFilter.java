@@ -18,10 +18,13 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
+	
+	private final UserRepository userRepository;
 
-  public LoginFilter(String url, AuthenticationManager authManager) {
+  public LoginFilter(String url, AuthenticationManager authManager, UserRepository userRepository) {
     super(new AntPathRequestMatcher(url));
     setAuthenticationManager(authManager);
+    this.userRepository = userRepository;
   }
 
   @Override
@@ -38,11 +41,12 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         );
   }
 
-  @Override
-  protected void successfulAuthentication(
-      HttpServletRequest req,
-      HttpServletResponse res, FilterChain chain,
-      Authentication auth) throws IOException, ServletException {
-	  AuthenticationService.addToken(res, auth.getName());
-  }
+	@Override
+	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
+			Authentication auth) throws IOException, ServletException {
+		AuthenticationService.addToken(res, auth.getName());
+		User user = userRepository.findByUsername(auth.getName());
+		user.updateLastLoginDateTime();
+		userRepository.save(user);
+	}
 }
