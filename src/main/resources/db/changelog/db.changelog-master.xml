@@ -55,4 +55,9 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 			</column>
 		</createTable>
 	</changeSet>
+	<changeSet id="20210504135000" author="svoboda-vlad">
+		<addColumn tableName="user">
+			<column name="last_login_date_time" type="timestamp" />
+		</addColumn>
+	</changeSet>
 </databaseChangeLog>

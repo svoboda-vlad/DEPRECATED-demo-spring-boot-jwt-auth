@@ -27,6 +27,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
+
+	@Autowired
+	private UserRepository userRepository;	
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -37,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.anyRequest().authenticated()
 		.and()
 		// Filter for the api/login requests
-		.addFilterBefore(new LoginFilter("/login", authenticationManager()), 
+		.addFilterBefore(new LoginFilter("/login", authenticationManager(), userRepository()), 
 		UsernamePasswordAuthenticationFilter.class)		
 	    // Filter for other requests to check JWT in header
 	    .addFilterBefore(new AuthenticationFilter(authenticationService()),
@@ -74,5 +77,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public UserDetailsService userDetailsService() {
 		return userDetailsService;
 	}
+	
+	public UserRepository userRepository() {
+		return userRepository;
+	}	
 	
 }
