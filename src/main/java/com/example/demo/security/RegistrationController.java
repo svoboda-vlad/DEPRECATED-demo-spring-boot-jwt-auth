@@ -17,8 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegistrationController {
 	
-	private final String REGISTRATION_URL = "/register";
-
+	private static final String REGISTRATION_URL = "/register";
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
     
@@ -26,8 +25,11 @@ public class RegistrationController {
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     @PostMapping(REGISTRATION_URL)
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationUser registrationUser) {
-    	userRepository.save(registrationUser.toUser(passwordEncoder));
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+		if (userRepository.findByUsername(registrationUser.getUsername()) != null)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		
+		userRepository.save(registrationUser.toUser(passwordEncoder));    	
+		return ResponseEntity.status(HttpStatus.CREATED).build();
     }    
 	
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,8 @@ public class CurrencyCodeController {
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     @PostMapping(CURRENCY_CODE_URL)
     public ResponseEntity<CurrencyCode> createCurrencyCode(@Valid @RequestBody CurrencyCode currencyCode) throws URISyntaxException {
+		if (currencyCodeRepository.findByCurrencyCode(currencyCode.getCurrencyCode()) != null)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     	CurrencyCode saved = currencyCodeRepository.save(currencyCode);
         return ResponseEntity
                 .created(new URI(CURRENCY_CODE_URL + "/" + saved.getId()))
