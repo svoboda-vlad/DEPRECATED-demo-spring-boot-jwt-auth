@@ -43,6 +43,7 @@ public class User implements UserDetails {
     private String password;
     
     private LocalDateTime lastLoginDateTime;
+    private LocalDateTime previousLoginDateTime;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -70,7 +71,13 @@ public class User implements UserDetails {
 	}
 	
 	public void updateLastLoginDateTime() {
-		this.lastLoginDateTime = LocalDateTime.now();
+		LocalDateTime currentDateTime = LocalDateTime.now();
+		if (this.lastLoginDateTime == null) {
+			this.previousLoginDateTime = currentDateTime;
+		} else {
+			this.previousLoginDateTime = this.lastLoginDateTime;
+		}
+		this.lastLoginDateTime = currentDateTime;
 	}
 
 }

@@ -44,11 +44,11 @@ ExchangeRate - id (long), rateDate (LocalDate), rate (BigDecimal, positive), cur
 "currencyCode": {"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1}}]
 - POST: {"rateDate": "2021-04-16","rate": 25.925,"currencyCode": {"id": 1}}
 
-User - id (long), username (String, min = 1, max = 50), password (String, min = 60, max = 60)
+User - id (long), username (String, min = 1, max = 50), password (String, min = 60, max = 60), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
 - no endpoint
 
-UserInfo - username (String)
-- GET: {"username":"user"}
+CurrentUser - username (String), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
+- GET: {"username": "user","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751"}
 - returned from endpoint "/current-user"
 
 RegistrationUser - username (String, min = 1, max = 50), password (String, min = 4, max = 100)
@@ -61,7 +61,7 @@ H2 in-memory database + liquibase
 Database tables:
 - currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL UNIQUE), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
-- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL)
+- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP)
 
 CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user", password "password")
 
