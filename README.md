@@ -59,9 +59,9 @@ RegistrationUser - username (String, min = 1, max = 50), password (String, min =
 H2 in-memory database + liquibase
 
 Database tables:
-- currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
+- currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL UNIQUE), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
-- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL), password (VARCHAR(255) NOT NULL)
+- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL)
 
 CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user", password "password")
 
