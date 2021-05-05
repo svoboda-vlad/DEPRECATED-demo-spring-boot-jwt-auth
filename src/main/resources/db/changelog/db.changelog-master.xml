@@ -64,4 +64,9 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 		<addUniqueConstraint columnNames="currency_code"
 			tableName="currency_code" validate="true" />
 	</changeSet>
+	<changeSet id="20210505143200" author="svoboda-vlad">
+		<addColumn tableName="user">
+			<column name="previous_login_date_time" type="timestamp" />
+		</addColumn>
+	</changeSet>	
 </databaseChangeLog>
