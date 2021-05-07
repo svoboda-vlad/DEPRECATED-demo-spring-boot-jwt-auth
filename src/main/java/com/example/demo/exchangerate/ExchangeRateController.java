@@ -2,12 +2,15 @@ package com.example.demo.exchangerate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +24,9 @@ import lombok.RequiredArgsConstructor;
 public class ExchangeRateController {
 	
     private final ExchangeRateRepository exchangeRateRepository;
+    private final CurrencyCodeRepository currencyCodeRepository;    
     private static final String EXCHANGE_RATE_URL = "/exchange-rate";
+    private static final String CURRENCY_CODE_URL = "/currency-code";    
 
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     @GetMapping(EXCHANGE_RATE_URL)
@@ -37,5 +42,21 @@ public class ExchangeRateController {
                 .created(new URI(EXCHANGE_RATE_URL + "/" + saved.getId()))
                 .body(saved);
     }
+    
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @GetMapping(EXCHANGE_RATE_URL + CURRENCY_CODE_URL + "/{id}")
+    public ResponseEntity<List<ExchangeRate>> getExchangeRatesByCurrencyCode(@PathVariable Long id) {
+		Optional<CurrencyCode> currencyCode = currencyCodeRepository.findById(id);
+		if (currencyCode.isPresent()) {
+			return ResponseEntity.ok(exchangeRateRepository.findByCurrencyCode(currencyCode.get()));
+		}
+		return ResponseEntity.notFound().build();
+    }
 
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @GetMapping(EXCHANGE_RATE_URL + "/{rateDate}")
+    public ResponseEntity<List<ExchangeRate>> getExchangeRatesByRateDate(@PathVariable String rateDate) {
+    	return ResponseEntity.ok(exchangeRateRepository.findByRateDate(LocalDate.parse(rateDate)));
+    }
+        
 }
