@@ -4,7 +4,6 @@
 http://localhost:8080/
 
 unrestricted:
-- GET "/hello" (HelloController)
 - POST "/login" (LoginFilter)
 - POST "/register" (RegistrationController)
 - GET "/current-user" (CurrentUserController)
@@ -13,7 +12,6 @@ unrestricted, but not REST API:
 - GET "/h2-console/**"
 
 restricted:
-- GET "/hello-restricted" (HelloController)
 - GET + POST "/currency-code" (CurrencyCodeController)
 - GET "/currency-code/1" (CurrencyCodeController)
 - GET + POST "/exchange-rate" (ExchangeRateController)
@@ -33,9 +31,6 @@ H2 console
 Heroku: [https://demo-spring-boot-jwt-auth.herokuapp.com/h2-console](https://demo-spring-boot-jwt-auth.herokuapp.com/h2-console)
 
 ## Models
-
-Hello - text (String)
-- GET: [{"text":"Hello World!"}]
 
 CurrencyCode - id (long), currencyCode (String, min = 1, max = 255), country (String, min = 1, max = 255), rateQty (int, positive)
 - GET: [{"id": 1,"currencyCode": "EUR","country": "EMU","rateQty": 1,"exchangeRates": [{"id": 1,"rateDate": "2021-04-15","rate": 25.94}]},
