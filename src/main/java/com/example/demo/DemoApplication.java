@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.exchangerate.CurrencyCode;
@@ -30,6 +31,7 @@ public class DemoApplication {
 	}
 	
 	@Bean
+	@Profile("dev")
 	public CommandLineRunner dataLoader(CurrencyCodeRepository currencyCodeRepo, UserRepository userRepo, PasswordEncoder encoder) {
 		return new CommandLineRunner() {
 			@Override
