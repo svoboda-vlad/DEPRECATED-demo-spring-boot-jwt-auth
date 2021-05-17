@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -22,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
-	private AuthenticationService authenticationService;
+	private AuthenticationFilter authenticationFilter;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -34,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.addFilterBefore(loginFilter(),
 						UsernamePasswordAuthenticationFilter.class)
 				// Filter for other requests to check JWT in header
-				.addFilterBefore(authenticationFilter(),
+				.addFilterBefore(authenticationFilter,
 						UsernamePasswordAuthenticationFilter.class)
 				.headers().frameOptions().disable().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -62,11 +63,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public LoginFilter loginFilter() throws Exception {
 		return new LoginFilter(authenticationManager());
-	}
-	
-	@Bean
-	public AuthenticationFilter authenticationFilter() {
-		return new AuthenticationFilter(authenticationService);
 	}
 
 }
