@@ -24,11 +24,10 @@ public class CurrentUserController {
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	@GetMapping(CURRENT_USER_URL)
 	public ResponseEntity<CurrentUser> getCurrentUser() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();		
+		if (authentication == null) return new ResponseEntity<CurrentUser>(HttpStatus.NOT_FOUND);
+		
 		UserDetails userDetails = userService.loadUserByUsername(authentication.getName());
-		
-		if (userDetails == null) return new ResponseEntity<CurrentUser>(HttpStatus.NOT_FOUND);
-		
 		User user = userRepository.findByUsername(userDetails.getUsername());
 		CurrentUser userInfo = new CurrentUser(user.getUsername(), user.getLastLoginDateTime(), user.getPreviousLoginDateTime());
 		return ResponseEntity.ok(userInfo);
