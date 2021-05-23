@@ -1,7 +1,35 @@
 # Demo - Spring Boot with JWT authentication (demo-spring-boot-jwt-auth)
 
+## REST API Authentication
+
+cURL (WINDOWS + LINUX):
+
+```
+curl -i http://localhost:8080/login -d "{\"username\": \"user\", \"password\": \"password\"}"
+```
+
+Returned JWT token:
+
+```
+Authorization: Bearer abcdef
+```
+
 ## REST API endpoints
 http://localhost:8080/
+
+Example of POST request with JWT token:
+
+cURL (WINDOWS + LINUX)
+
+```
+curl -i http://localhost:8080/currency-code -d "{\"id\":0,\"currencyCode\": \"EUR\",\"country\": \"EMU\",\"rateQty\":1}" -H "Content-Type: application/json" -H "Authorization: Bearer abcdef"
+```
+
+Response:
+
+```
+{"id":6,"currencyCode":"EUR","country":"EMU","rateQty":1}
+```
 
 unrestricted:
 - POST "/login" (LoginFilter)
@@ -10,6 +38,7 @@ unrestricted:
 
 unrestricted, but not REST API:
 - GET "/h2-console/**"
+- GET "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
 
 restricted:
 - GET + POST "/currency-code" (CurrencyCodeController)
@@ -74,20 +103,6 @@ Login endpoints:
 
 {"username": "user", "password": "password"}
 
-cURL: 
-
-WINDOWS
-
-```
-curl -i -d "{\"username\": \"user\", \"password\": \"password\"}" http://localhost:8080/login
-```
-
-LINUX
-
-```
-curl -i -d '{"username": "user", "password": "password"}' http://localhost:8080/login
-```
-
 SessionCreationPolicy.STATELESS
 
 ## Registration
@@ -96,18 +111,10 @@ SessionCreationPolicy.STATELESS
 
 {"username": "test", "password": "test"}
 
-cURL: 
-
-WINDOWS
+cURL (WINDOWS + LINUX):
 
 ```
-curl -i -d "{\"username\": \"test\", \"password\": \"test123\"}" http://localhost:8080/login
-```
-
-LINUX
-
-```
-curl -i -d '{"username": "test", "password": "test123"}' http://localhost:8080/login
+curl -i http://localhost:8080/register -d "{\"username\": \"test\", \"password\": \"test123\"}" -H "Content-Type: application/json"
 ```
 
 ## Dependencies
