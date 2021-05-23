@@ -33,8 +33,8 @@ Heroku: [https://demo-spring-boot-jwt-auth.herokuapp.com/h2-console](https://dem
 ## Models
 
 CurrencyCode - id (long), currencyCode (String, min = 1, max = 255), country (String, min = 1, max = 255), rateQty (int, positive)
-- GET: [{"id": 1,"currencyCode": "EUR","country": "EMU","rateQty": 1,"exchangeRates": [{"id": 1,"rateDate": "2021-04-15","rate": 25.94}]},
-{"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1,"exchangeRates": [{"id": 2,"rateDate": "2021-04-15","rate": 21.669}]}]
+- GET: [{"id": 1,"currencyCode": "EUR","country": "EMU","rateQty": 1},
+{"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1}]
 - POST: {"currencyCode": "EUR","country": "EMU","rateQty": 1}
 
 ExchangeRate - id (long), rateDate (LocalDate), rate (BigDecimal, positive), currencyCode (CurrencyCode)

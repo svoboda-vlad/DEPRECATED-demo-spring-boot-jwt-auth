@@ -36,14 +36,8 @@ public class AuthenticationService {
   private static final String AUTHORIZATION = "Authorization";
 
   static public void addToken(HttpServletResponse res, String username) {
-	Date expirationDateTime = Date.from(
-			LocalDateTime.now().plusMinutes(EXPIRY_MINS).atZone(ZoneId.systemDefault()).toInstant()
-			);
-    String JwtToken = Jwts.builder().setSubject(username)
-        .setExpiration(expirationDateTime)
-        .signWith(SIGNINGKEY)
-        .compact();
-    res.addHeader("Authorization", PREFIX + " " + JwtToken);
+    String jwtToken = generateTokenWithHeader(username);
+    res.addHeader("Authorization", jwtToken);
     res.addHeader("Access-Control-Expose-Headers", "Authorization");
   }
 
@@ -88,6 +82,16 @@ public class AuthenticationService {
 		if (claims != null)
 			return claims.getBody().getSubject();
 		return null;
+	}
+	
+	public static String generateTokenWithHeader(String username) {
+		Date expirationDateTime = Date.from(
+				LocalDateTime.now().plusMinutes(EXPIRY_MINS).atZone(ZoneId.systemDefault()).toInstant()
+				);
+	    return PREFIX + " " + Jwts.builder().setSubject(username)
+	        .setExpiration(expirationDateTime)
+	        .signWith(SIGNINGKEY)
+	        .compact();
 	}
   
 }
