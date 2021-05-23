@@ -33,7 +33,7 @@ class CurrencyCodeControllerTest {
 	private CurrencyCodeRepository currencyCodeRepository;
 
 	@Test
-	void testGetAllCurrencyCodes() throws Exception {
+	void testGetAllCurrencyCodesOk200() throws Exception {
 		List<CurrencyCode> codesList = new ArrayList<CurrencyCode>();
 		codesList.add(new CurrencyCode("EUR", "EMU", 1));
 		
@@ -42,12 +42,12 @@ class CurrencyCodeControllerTest {
 		String token = AuthenticationService.generateTokenWithHeader("user");
 		
 		this.mvc.perform(get("/currency-code").header("Authorization", token).accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
+		.andExpect(status().is(200))
 				.andExpect(content().json("[{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}]"));
 	}
 
 	@Test
-	void testCreateCurrencyCode() throws Exception {
+	void testCreateCurrencyCodeCreated201() throws Exception {
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
 		given(this.currencyCodeRepository.save(code)).willReturn(code);		
 		
@@ -55,21 +55,46 @@ class CurrencyCodeControllerTest {
 		String currencyCodeJson = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
 		
 		this.mvc.perform(post("/currency-code").content(currencyCodeJson).header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
-		.andExpect(status().isCreated())
+		.andExpect(status().is(201))
 				.andExpect(content().json(currencyCodeJson));
 	}
+	
+	@Test
+	void testCreateCurrencyCodeBadRequest400() throws Exception {
+		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
+		given(this.currencyCodeRepository.save(code)).willReturn(code);		
+		given(this.currencyCodeRepository.findByCurrencyCode("EUR")).willReturn(code);
+		
+		String token = AuthenticationService.generateTokenWithHeader("user");
+		String sentJsonCurrencyCode = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
+		
+		this.mvc.perform(post("/currency-code").content(sentJsonCurrencyCode).header("Authorization", token).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(400))
+				.andExpect(content().string(""));
+	}	
 
 	@Test
-	void testGetCurrencyCode() throws Exception {
+	void testGetCurrencyCodeOk200() throws Exception {
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
 		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));		
 		
 		String token = AuthenticationService.generateTokenWithHeader("user");
-		String currencyCodeJson = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
+		String expectedJsonCurrencyCode = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
 		
 		this.mvc.perform(get("/currency-code/1").header("Authorization", token).accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-				.andExpect(content().json(currencyCodeJson));
+		.andExpect(status().is(200))
+				.andExpect(content().json(expectedJsonCurrencyCode));
 	}
+	
+	@Test
+	void testGetCurrencyCodeNotFound404() throws Exception {
+		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.empty());		
+		
+		String token = AuthenticationService.generateTokenWithHeader("user");
+		
+		this.mvc.perform(get("/currency-code/1").header("Authorization", token).accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(404))
+				.andExpect(content().string(""));
+	}	
 
 }
