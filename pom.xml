@@ -103,6 +103,15 @@
 		</dependency>
 	</dependencies>
 
+	<repositories>
+		<!-- https://spring.io/blog/2019/09/16/goodbye-http-repo-spring-use-https -->
+		<repository>
+			<id>spring-repo</id>
+			<name>Spring Repo</name>
+			<url>https://repo.spring.io</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
