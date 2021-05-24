@@ -37,10 +37,12 @@ class CurrencyCodeControllerTest {
 	void testGetAllCurrencyCodesOk200() throws Exception {
 		String requestUrl = "/currency-code";
 		int expectedStatus = 200;
-		String expectedJson = "[{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}]";
+		String expectedJson = "[{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}," 
+		+ "{\"id\":0,\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}]";
 		
 		List<CurrencyCode> codesList = new ArrayList<CurrencyCode>();
 		codesList.add(new CurrencyCode("EUR", "EMU", 1));
+		codesList.add(new CurrencyCode("USD", "USA", 1));
 		
 		given(this.currencyCodeRepository.findAll()).willReturn(codesList);
 		
