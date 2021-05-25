@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,6 +31,10 @@ class CurrencyCodeControllerTest {
 
 	@MockBean
 	private CurrencyCodeRepository currencyCodeRepository;
+	
+	private String generateAuthorizationHeader() {
+		return "Bearer " + AuthenticationService.generateToken("user");
+	}
 
 	@Test
 	void testGetAllCurrencyCodesOk200() throws Exception {
@@ -46,7 +49,7 @@ class CurrencyCodeControllerTest {
 		
 		given(this.currencyCodeRepository.findAll()).willReturn(codesList);
 		
-		this.mvc.perform(get(requestUrl).headers(generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -61,7 +64,7 @@ class CurrencyCodeControllerTest {
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
 		given(this.currencyCodeRepository.save(code)).willReturn(code);		
 				
-		this.mvc.perform(post(requestUrl).content(requestJson).headers(generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -77,7 +80,7 @@ class CurrencyCodeControllerTest {
 		given(this.currencyCodeRepository.save(code)).willReturn(code);		
 		given(this.currencyCodeRepository.findByCurrencyCode("EUR")).willReturn(code);
 				
-		this.mvc.perform(post(requestUrl).content(requestJson).headers(generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}	
@@ -91,7 +94,7 @@ class CurrencyCodeControllerTest {
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
 		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));		
 				
-		this.mvc.perform(get(requestUrl).headers(generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -104,15 +107,9 @@ class CurrencyCodeControllerTest {
 		
 		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.empty());		
 				
-		this.mvc.perform(get(requestUrl).headers(generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
-	}
-	
-	private HttpHeaders generateAuthorizationHeader() {
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.add("Authorization", AuthenticationService.generateTokenWithHeader("user"));
-		return httpHeaders;
 	}
 
 }
