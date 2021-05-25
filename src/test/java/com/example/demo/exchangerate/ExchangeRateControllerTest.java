@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ class ExchangeRateControllerTest {
 
 	@MockBean
 	private ExchangeRateRepository exchangeRateRepository;
+	
+	@MockBean
+	private CurrencyCodeRepository currencyCodeRepository;	
 	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
@@ -74,12 +78,58 @@ class ExchangeRateControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
-
-	/*
-	 * @Test void testGetExchangeRatesByCurrencyCode() {
-	 * fail("Not yet implemented"); }
-	 * 
-	 * @Test void testGetExchangeRatesByRateDate() { fail("Not yet implemented"); }
-	 */
-
+	
+	@Test
+	void testGetExchangeRatesByCurrencyCodeOk200() throws Exception {
+		String requestUrl = "/exchange-rate/currency-code/1";
+		int expectedStatus = 200;
+		String expectedJson = "[{\"id\":0,\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}},"
+				+ "{\"id\":0,\"rateDate\":\"2021-04-16\",\"rate\":25.840,\"currencyCode\":{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}}]";
+		
+		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
+		List<ExchangeRate> ratesList = new ArrayList<ExchangeRate>();
+		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), code));
+		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 16), new BigDecimal("25.840"), code));
+		
+		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));
+		given(this.exchangeRateRepository.findByCurrencyCode(code)).willReturn(ratesList);
+				
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+	}
+	
+	@Test
+	void testGetExchangeRatesByCurrencyCodeNotFound404() throws Exception {
+		String requestUrl = "/exchange-rate/currency-code/1";
+		int expectedStatus = 404;
+		String expectedJson = "";
+				
+		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.empty());
+				
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testGetExchangeRatesByRateDateOk200() throws Exception {
+		String requestUrl = "/exchange-rate/2021-04-15";
+		int expectedStatus = 200;
+		String expectedJson = "[{\"id\":0,\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}},"
+				+ "{\"id\":0,\"rateDate\":\"2021-04-15\",\"rate\":21.669,\"currencyCode\":{\"id\":0,\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}}]";
+		
+		CurrencyCode currencyCode1 = new CurrencyCode("EUR", "EMU", 1);
+		CurrencyCode currencyCode2 = new CurrencyCode("USD", "USA", 1);
+		List<ExchangeRate> ratesList = new ArrayList<ExchangeRate>();
+		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1));
+		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2));
+		
+		given(this.exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15))).willReturn(ratesList);
+				
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+	}
+		
 }
