@@ -5,7 +5,7 @@
 cURL (WINDOWS + LINUX):
 
 ```
-curl -i http://localhost:8080/login -d "{\"username\": \"user\", \"password\": \"password\"}"
+curl -i http://localhost:8080/login -d "{\"username\": \"user1\", \"password\": \"pass123\"}"
 ```
 
 Returned JWT token:
@@ -75,7 +75,7 @@ User - id (long), username (String, min = 1, max = 50), password (String, min = 
 - no endpoint
 
 CurrentUser - username (String), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
-- GET: {"username": "user","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751"}
+- GET: {"username": "user1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751"}
 - returned from endpoint "/current-user"
 
 RegistrationUser - username (String, min = 1, max = 50), password (String, min = 4, max = 100)
@@ -90,18 +90,18 @@ Database tables:
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
 - user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP)
 
-CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user", password "password")
+CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user1", password "pass123")
 
 ## Authentication
 
 UserDetailsService + BCryptPasswordEncoder
-- username: "user", password: "password"
+- username: "user1", password: "pass123"
 
 Login endpoints:
 
 - POST "/login"
 
-{"username": "user", "password": "password"}
+{"username": "user1", "password": "pass123"}
 
 SessionCreationPolicy.STATELESS
 

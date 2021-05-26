@@ -16,14 +16,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.security.AuthenticationService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser
+//@WithMockUser - not needed
 class CurrencyCodeControllerTest {
 	
 	@Autowired
@@ -47,7 +46,7 @@ class CurrencyCodeControllerTest {
 		codesList.add(new CurrencyCode("EUR", "EMU", 1));
 		codesList.add(new CurrencyCode("USD", "USA", 1));
 		
-		given(this.currencyCodeRepository.findAll()).willReturn(codesList);
+		given(currencyCodeRepository.findAll()).willReturn(codesList);
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -62,7 +61,7 @@ class CurrencyCodeControllerTest {
 		String expectedJson = requestJson;
 		
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
-		given(this.currencyCodeRepository.save(code)).willReturn(code);		
+		given(currencyCodeRepository.save(code)).willReturn(code);		
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -77,8 +76,8 @@ class CurrencyCodeControllerTest {
 		String expectedJson = "";
 		
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
-		given(this.currencyCodeRepository.save(code)).willReturn(code);		
-		given(this.currencyCodeRepository.findByCurrencyCode("EUR")).willReturn(code);
+		given(currencyCodeRepository.save(code)).willReturn(code);		
+		given(currencyCodeRepository.findByCurrencyCode("EUR")).willReturn(code);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -92,7 +91,7 @@ class CurrencyCodeControllerTest {
 		String expectedJson = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
 		
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
-		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));		
+		given(currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));		
 				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -105,7 +104,7 @@ class CurrencyCodeControllerTest {
 		int expectedStatus = 404;
 		String expectedJson = "";
 		
-		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.empty());		
+		given(currencyCodeRepository.findById(1L)).willReturn(Optional.empty());		
 				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))

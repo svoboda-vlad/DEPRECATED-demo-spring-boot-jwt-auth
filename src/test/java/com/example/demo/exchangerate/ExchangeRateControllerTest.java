@@ -18,14 +18,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.security.AuthenticationService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser
+// @WithMockUser - not needed
 class ExchangeRateControllerTest {
 
 	@Autowired
@@ -55,7 +54,7 @@ class ExchangeRateControllerTest {
 		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1));
 		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2));
 
-		given(this.exchangeRateRepository.findAll()).willReturn(ratesList);
+		given(exchangeRateRepository.findAll()).willReturn(ratesList);
 
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is(expectedStatus)).andExpect(content().json(expectedJson));
@@ -72,7 +71,7 @@ class ExchangeRateControllerTest {
 		code.setId(1L);
 		ExchangeRate rate = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), code);
 
-		given(this.exchangeRateRepository.save(rate)).willReturn(rate);
+		given(exchangeRateRepository.save(rate)).willReturn(rate);
 
 		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader())
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
@@ -91,8 +90,8 @@ class ExchangeRateControllerTest {
 		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), code));
 		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 16), new BigDecimal("25.840"), code));
 		
-		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));
-		given(this.exchangeRateRepository.findByCurrencyCode(code)).willReturn(ratesList);
+		given(currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));
+		given(exchangeRateRepository.findByCurrencyCode(code)).willReturn(ratesList);
 				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -105,7 +104,7 @@ class ExchangeRateControllerTest {
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
-		given(this.currencyCodeRepository.findById(1L)).willReturn(Optional.empty());
+		given(currencyCodeRepository.findById(1L)).willReturn(Optional.empty());
 				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -125,7 +124,7 @@ class ExchangeRateControllerTest {
 		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1));
 		ratesList.add(new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2));
 		
-		given(this.exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15))).willReturn(ratesList);
+		given(exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15))).willReturn(ratesList);
 				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
