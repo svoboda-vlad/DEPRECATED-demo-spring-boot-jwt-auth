@@ -1,7 +1,35 @@
 # Demo - Spring Boot with JWT authentication (demo-spring-boot-jwt-auth)
 
+## REST API Authentication
+
+cURL (WINDOWS + LINUX):
+
+```
+curl -i http://localhost:8080/login -d "{\"username\": \"user1\", \"password\": \"pass123\"}"
+```
+
+Returned JWT token:
+
+```
+Authorization: Bearer abcdef
+```
+
 ## REST API endpoints
 http://localhost:8080/
+
+Example of POST request with JWT token:
+
+cURL (WINDOWS + LINUX)
+
+```
+curl -i http://localhost:8080/currency-code -d "{\"id\":0,\"currencyCode\": \"EUR\",\"country\": \"EMU\",\"rateQty\":1}" -H "Content-Type: application/json" -H "Authorization: Bearer abcdef"
+```
+
+Response:
+
+```
+{"id":6,"currencyCode":"EUR","country":"EMU","rateQty":1}
+```
 
 unrestricted:
 - POST "/login" (LoginFilter)
@@ -10,6 +38,7 @@ unrestricted:
 
 unrestricted, but not REST API:
 - GET "/h2-console/**"
+- GET "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
 
 restricted:
 - GET + POST "/currency-code" (CurrencyCodeController)
@@ -33,8 +62,8 @@ Heroku: [https://demo-spring-boot-jwt-auth.herokuapp.com/h2-console](https://dem
 ## Models
 
 CurrencyCode - id (long), currencyCode (String, min = 1, max = 255), country (String, min = 1, max = 255), rateQty (int, positive)
-- GET: [{"id": 1,"currencyCode": "EUR","country": "EMU","rateQty": 1,"exchangeRates": [{"id": 1,"rateDate": "2021-04-15","rate": 25.94}]},
-{"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1,"exchangeRates": [{"id": 2,"rateDate": "2021-04-15","rate": 21.669}]}]
+- GET: [{"id": 1,"currencyCode": "EUR","country": "EMU","rateQty": 1},
+{"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1}]
 - POST: {"currencyCode": "EUR","country": "EMU","rateQty": 1}
 
 ExchangeRate - id (long), rateDate (LocalDate), rate (BigDecimal, positive), currencyCode (CurrencyCode)
@@ -46,7 +75,7 @@ User - id (long), username (String, min = 1, max = 50), password (String, min = 
 - no endpoint
 
 CurrentUser - username (String), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
-- GET: {"username": "user","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751"}
+- GET: {"username": "user1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751"}
 - returned from endpoint "/current-user"
 
 RegistrationUser - username (String, min = 1, max = 50), password (String, min = 4, max = 100)
@@ -61,32 +90,18 @@ Database tables:
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
 - user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP)
 
-CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user", password "password")
+CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user1", password "pass123")
 
 ## Authentication
 
 UserDetailsService + BCryptPasswordEncoder
-- username: "user", password: "password"
+- username: "user1", password: "pass123"
 
 Login endpoints:
 
 - POST "/login"
 
-{"username": "user", "password": "password"}
-
-cURL: 
-
-WINDOWS
-
-```
-curl -i -d "{\"username\": \"user\", \"password\": \"password\"}" http://localhost:8080/login
-```
-
-LINUX
-
-```
-curl -i -d '{"username": "user", "password": "password"}' http://localhost:8080/login
-```
+{"username": "user1", "password": "pass123"}
 
 SessionCreationPolicy.STATELESS
 
@@ -96,18 +111,10 @@ SessionCreationPolicy.STATELESS
 
 {"username": "test", "password": "test"}
 
-cURL: 
-
-WINDOWS
+cURL (WINDOWS + LINUX):
 
 ```
-curl -i -d "{\"username\": \"test\", \"password\": \"test123\"}" http://localhost:8080/login
-```
-
-LINUX
-
-```
-curl -i -d '{"username": "test", "password": "test123"}' http://localhost:8080/login
+curl -i http://localhost:8080/register -d "{\"username\": \"test\", \"password\": \"test123\"}" -H "Content-Type: application/json"
 ```
 
 ## Dependencies

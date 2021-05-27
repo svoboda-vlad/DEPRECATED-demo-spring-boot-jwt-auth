@@ -49,7 +49,7 @@ public class DemoApplication {
 					currencyCodeRepo.saveAll(currencyCodes);
 				}				
 				
-				User user1 = new User("user", encoder.encode("password"));
+				User user1 = new User("user1", encoder.encode("pass123"));
 				if(userRepo.findAll().size() == 0) {
 					userRepo.save(user1);
 				}
