@@ -17,6 +17,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -33,6 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// Filter for login requests
 				.addFilterBefore(loginFilter(),
 						UsernamePasswordAuthenticationFilter.class)
+				// Filter for login requests
+				.addFilterBefore(googleLoginFilter(),
+						UsernamePasswordAuthenticationFilter.class)				
 				// Filter for other requests to check JWT in header
 				.addFilterBefore(authenticationFilter,
 						UsernamePasswordAuthenticationFilter.class)
@@ -64,4 +71,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return new LoginFilter(authenticationManager());
 	}
 
+	@Bean
+	public GoogleLoginFilter googleLoginFilter() throws Exception {
+		return new GoogleLoginFilter(authenticationManager());
+	}
+	
+    @Bean
+    public GsonFactory gsonFactory() {
+        return new GsonFactory();
+    }
+
+    @Bean
+    public HttpTransport httpTransport() {
+        return new NetHttpTransport();
+    }	
+	
 }

@@ -43,15 +43,17 @@ public class DemoApplication {
 						);
 				currencyCode2.addExchangeRate(
 						new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
-						);				
-				List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));				
+						);
+				List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
 				if (currencyCodeRepo.findAll().size() == 0) {
 					currencyCodeRepo.saveAll(currencyCodes);
 				}				
 				
 				User user1 = new User("user1", encoder.encode("pass123"));
+				User user2 = new User("108564931079495851483", encoder.encode(""));
+				List<User> users = new ArrayList<User>(Arrays.asList(user1, user2));				
 				if(userRepo.findAll().size() == 0) {
-					userRepo.save(user1);
+					userRepo.saveAll(users);
 				}
 				
 			}

@@ -21,6 +21,7 @@
 		<springdoc-openapi-ui.version>1.5.4</springdoc-openapi-ui.version>
 		<springdoc-openapi-security.version>1.5.4
 		</springdoc-openapi-security.version>
+		<google-api-client.version>1.31.5</google-api-client.version>
 	</properties>
 
 	<dependencies>
@@ -101,6 +102,11 @@
 			<artifactId>springdoc-openapi-security</artifactId>
 			<version>${springdoc-openapi-security.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>${google-api-client.version}</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -135,26 +141,10 @@
 							<goal>report</goal>
 						</goals>
 					</execution>
-					<!--<execution>
-						<id>default-check</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<rule>
-									<element>BUNDLE</element>
-									<limits>
-										<limit>
-											<counter>COMPLEXITY</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.60</minimum>
-										</limit>
-									</limits>
-								</rule>
-							</rules>
-						</configuration>
-					</execution> -->
+					<!--<execution> <id>default-check</id> <goals> <goal>check</goal> </goals> 
+						<configuration> <rules> <rule> <element>BUNDLE</element> <limits> <limit> 
+						<counter>COMPLEXITY</counter> <value>COVEREDRATIO</value> <minimum>0.60</minimum> 
+						</limit> </limits> </rule> </rules> </configuration> </execution> -->
 				</executions>
 			</plugin>
 		</plugins>
