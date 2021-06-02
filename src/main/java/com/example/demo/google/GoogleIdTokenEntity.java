@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.google;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
