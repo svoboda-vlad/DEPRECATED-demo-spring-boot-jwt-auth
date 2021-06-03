@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.security.GeneralSecurityException;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -64,5 +66,33 @@ class GoogleLoginFilterTest {
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
 	}
+	
+	@Test
+	void testGoogleLoginInvalidIdTokenUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"invalididtoken\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+
+		given(googleIdTokenVerifier.verify("invalididtoken")).willThrow(GeneralSecurityException.class);
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}	
+	
+	@Test
+	void testGoogleLoginInvalidJsonUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idTokenxxx\":\"abcdef\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}		
 	
 }
