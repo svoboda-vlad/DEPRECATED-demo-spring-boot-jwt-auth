@@ -1,7 +1,6 @@
 package com.example.demo.google;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 
 import javax.servlet.FilterChain;
@@ -26,24 +25,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 
 public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 	private final Logger log = LoggerFactory.getLogger(GoogleLoginFilter.class);	
 	
 	@Autowired
-	private GoogleClientProperties googleClientProperties;
+	private GoogleIdTokenVerifier googleIdTokenVerifier;
 	
 	@Autowired
 	private UserRepository userRepository;
-	
-	@Autowired
-	private GsonFactory gsonFactory;
-	
-	@Autowired
-	private HttpTransport httpTransport;
 
 	public GoogleLoginFilter(AuthenticationManager authManager) {
 		super(new AntPathRequestMatcher("/google-login", "POST"));
@@ -55,11 +46,9 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 			throws AuthenticationException, IOException {
 
 		GoogleIdTokenEntity tokenEntity = resolveGoogleIdTokenEntity(req);		
-		GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(httpTransport, gsonFactory)
-				.setAudience(Arrays.asList(googleClientProperties.getClientIds())).build();
 		String username = "";
 		try {
-			GoogleIdToken idToken = verifier.verify(tokenEntity.getIdToken());
+			GoogleIdToken idToken = googleIdTokenVerifier.verify(tokenEntity.getIdToken());
 			if (idToken != null) {
 				Payload payload = idToken.getPayload();
 				username = payload.getSubject();

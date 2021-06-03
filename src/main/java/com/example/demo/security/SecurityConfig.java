@@ -18,9 +18,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.demo.google.GoogleLoginFilter;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 
 @Configuration
 @EnableWebSecurity
@@ -76,15 +73,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public GoogleLoginFilter googleLoginFilter() throws Exception {
 		return new GoogleLoginFilter(authenticationManager());
 	}
-	
-    @Bean
-    public GsonFactory gsonFactory() {
-        return new GsonFactory();
-    }
-
-    @Bean
-    public HttpTransport httpTransport() {
-        return new NetHttpTransport();
-    }	
 	
 }

@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.google;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -16,10 +16,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.security.User;
+import com.example.demo.security.UserRepository;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.json.webtoken.JsonWebSignature.Header;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 //@WithMockUser - not needed
-class LoginFilterTest {
+class GoogleLoginFilterTest {
 	
 	@Autowired
 	private MockMvc mvc;
@@ -32,15 +39,23 @@ class LoginFilterTest {
 	
 	@MockBean
 	private UserRepository userRepository;
+	
+	@MockBean
+	private GoogleIdTokenVerifier googleIdTokenVerifier;	
 
 	@Test
-	void testLoginOk200() throws Exception {
-		String requestUrl = "/login";
-		String requestJson = "{\"username\":\"user3\",\"password\":\"password3\"}";
+	void testGoogleLoginOk200() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"abcdef\"}";
 		int expectedStatus = 200;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"));
+		Header header = new Header();
+		Payload payload = new Payload();
+		payload.setSubject("user3");
+		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
+		User user = new User("user3",encoder.encode(""));
+		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		given(userRepository.findByUsername("user3")).willReturn(user);
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
