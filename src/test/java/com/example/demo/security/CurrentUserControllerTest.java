@@ -53,7 +53,7 @@ class CurrentUserControllerTest {
 	}
 	
 	@Test
-	void testGetCurrentUSerNotFound404() throws Exception {
+	void testGetCurrentUserNotFound404() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 404;
 		String expectedJson = "";
@@ -61,6 +61,18 @@ class CurrentUserControllerTest {
 		this.mvc.perform(get(requestUrl).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testGetCurrentUserInvalidTokenNotFound404() throws Exception {		
+		String requestUrl = "/current-user";
+		int expectedStatus = 404;
+		String expectedJson = "";
+				
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader() + "xxx").accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));		
+		
 	}	
 
 }
