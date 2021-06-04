@@ -2,10 +2,16 @@
 
 ## REST API Authentication
 
-cURL (WINDOWS + LINUX):
+cURL (WINDOWS + LINUX) - username + password login:
 
 ```
 curl -i http://localhost:8080/login -d "{\"username\": \"user1\", \"password\": \"pass123\"}"
+```
+
+cURL (WINDOWS + LINUX) - Google ID token login:
+
+```
+curl -i http://localhost:8080/google-login -d "{\"idToken\": \"abcdef\"}"
 ```
 
 Returned JWT token:
@@ -33,6 +39,7 @@ Response:
 
 unrestricted:
 - POST "/login" (LoginFilter)
+- POST "/google-login" (GoogleLoginFilter)
 - POST "/register" (RegistrationController)
 - GET "/current-user" (CurrentUserController)
 
@@ -71,8 +78,9 @@ ExchangeRate - id (long), rateDate (LocalDate), rate (BigDecimal, positive), cur
 "currencyCode": {"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1}}]
 - POST: {"rateDate": "2021-04-16","rate": 25.925,"currencyCode": {"id": 1}}
 
-User - id (long), username (String, min = 1, max = 50), password (String, min = 60, max = 60), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
+User - id (long), username (String, min = 1, max = 255), password (String, min = 60, max = 60), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
 - no endpoint
+- parsed from endpoint POST "/login"
 
 CurrentUser - username (String), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
 - GET: {"username": "user1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751"}
@@ -80,6 +88,10 @@ CurrentUser - username (String), lastLoginDateTime (LocalDateTime), previousLogi
 
 RegistrationUser - username (String, min = 1, max = 50), password (String, min = 4, max = 100)
 - POST: {"username": "test","password": "test123"}
+
+GoogleIdTokenEntity - idToken (String, min = 1, max = 2048)
+- no endpoint
+- parsed from endpoint POST "/google-login"
 
 ## Database
 
@@ -90,18 +102,23 @@ Database tables:
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
 - user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP)
 
-CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user1", password "pass123")
+CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user1", password "pass123" + username: "108564931079495851483", password: "")
 
 ## Authentication
 
 UserDetailsService + BCryptPasswordEncoder
 - username: "user1", password: "pass123"
+- username: "108564931079495851483", password: ""
 
 Login endpoints:
 
 - POST "/login"
 
 {"username": "user1", "password": "pass123"}
+
+- POST "/google-login"
+
+{"idToken": "abcdef"}
 
 SessionCreationPolicy.STATELESS
 
@@ -127,6 +144,9 @@ compile scope (default):
 - jjwt-api
 - liquibase-core
 - jaxb-api
+- springdoc-openapi-ui
+- springdoc-openapi-security
+- google-api-client
 
 provided scope:
 - lombok
@@ -149,3 +169,7 @@ spring.h2.console.enabled=true
 spring.h2.console.settings.web-allow-others=true
 
 spring.datasource.generate-unique-name=false
+
+spring.profiles.active=dev
+
+google.client.clientids=733460469950-9bsam7nba7ljgj7nmhu3td2mrlctvhet.apps.googleusercontent.com
