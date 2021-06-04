@@ -24,7 +24,7 @@ public class RegistrationController {
 		if (userRepository.findByUsername(registrationUser.getUsername()) != null)
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		
-		userRepository.save(registrationUser.toUser(encoder));    	
+		userRepository.save(registrationUser.toUserInternal(encoder));    	
 		return ResponseEntity.status(HttpStatus.CREATED).build();
     }    
 	

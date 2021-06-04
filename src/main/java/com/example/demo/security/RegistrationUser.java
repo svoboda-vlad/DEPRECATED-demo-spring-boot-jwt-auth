@@ -27,8 +27,12 @@ public class RegistrationUser {
 	@NonNull
 	private String password;
 
-	public User toUser(PasswordEncoder passwordEncoder) {
+	public User toUserInternal(PasswordEncoder passwordEncoder) {
 		return new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL);
+	}
+	
+	public User toUserGoogle(PasswordEncoder passwordEncoder) {
+		return new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE);
 	}
 
 }

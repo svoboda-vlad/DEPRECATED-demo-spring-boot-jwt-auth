@@ -8,7 +8,7 @@ cURL (WINDOWS + LINUX) - username + password login:
 curl -i http://localhost:8080/login -d "{\"username\": \"user1\", \"password\": \"pass123\"}"
 ```
 
-cURL (WINDOWS + LINUX) - Google ID token login:
+cURL (WINDOWS + LINUX) - Google ID token login + automatic registration of a new user:
 
 ```
 curl -i http://localhost:8080/google-login -d "{\"idToken\": \"abcdef\"}"
@@ -78,7 +78,7 @@ ExchangeRate - id (long), rateDate (LocalDate), rate (BigDecimal, positive), cur
 "currencyCode": {"id": 2,"currencyCode": "USD","country": "USA","rateQty": 1}}]
 - POST: {"rateDate": "2021-04-16","rate": 25.925,"currencyCode": {"id": 1}}
 
-User - id (long), username (String, min = 1, max = 255), password (String, min = 60, max = 60), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime)
+User - id (long), username (String, min = 1, max = 255), password (String, min = 60, max = 60), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime), loginProvider (LoginProvider - enum - INTERNAL, GOOGLE)
 - no endpoint
 - parsed from endpoint POST "/login"
 
@@ -100,7 +100,7 @@ H2 in-memory database + liquibase
 Database tables:
 - currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL UNIQUE), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
-- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP)
+- user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP), login_provider(VARCHAR(255))
 
 CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user1", password "pass123" + username: "108564931079495851483", password: "")
 

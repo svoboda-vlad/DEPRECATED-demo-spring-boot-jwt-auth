@@ -15,10 +15,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.RegistrationUser;
 import com.example.demo.security.User;
 import com.example.demo.security.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,11 +30,14 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 
 public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-	private final Logger log = LoggerFactory.getLogger(GoogleLoginFilter.class);	
-	
+	private final Logger log = LoggerFactory.getLogger(GoogleLoginFilter.class);
+
+	@Autowired
+	private PasswordEncoder encoder;
+
 	@Autowired
 	private GoogleIdTokenVerifier googleIdTokenVerifier;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -46,19 +51,26 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 			throws AuthenticationException, IOException {
 
 		GoogleIdTokenEntity tokenEntity = resolveGoogleIdTokenEntity(req);
-		if (tokenEntity == null) tokenEntity = new GoogleIdTokenEntity();
+		if (tokenEntity == null)
+			tokenEntity = new GoogleIdTokenEntity();
 		String username = "";
+
 		try {
 			GoogleIdToken idToken = googleIdTokenVerifier.verify(tokenEntity.getIdToken());
 			if (idToken != null) {
 				Payload payload = idToken.getPayload();
 				username = payload.getSubject();
+
+				if (userRepository.findByUsername(username) == null) {
+					RegistrationUser user = new RegistrationUser(username, "");
+					userRepository.save(user.toUserGoogle(encoder));
+				}
 			}
 		} catch (Exception e) {
 			log.info("Google ID token verification failed");
 		}
-		return getAuthenticationManager().authenticate(
-				new UsernamePasswordAuthenticationToken(username, "", Collections.emptyList()));		
+		return getAuthenticationManager()
+				.authenticate(new UsernamePasswordAuthenticationToken(username, "", Collections.emptyList()));
 	}
 
 	@Override
@@ -69,14 +81,14 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 		user.updateLastLoginDateTime();
 		userRepository.save(user);
 	}
-	
-	private GoogleIdTokenEntity resolveGoogleIdTokenEntity(HttpServletRequest request)  {		
+
+	private GoogleIdTokenEntity resolveGoogleIdTokenEntity(HttpServletRequest request) {
 		try {
 			return new ObjectMapper().readValue(request.getInputStream(), GoogleIdTokenEntity.class);
 		} catch (Exception e) {
 			log.info("ID token parsing from request body failed: {}.", e.getMessage());
 		}
 		return null;
-	}	
-	
+	}
+
 }
