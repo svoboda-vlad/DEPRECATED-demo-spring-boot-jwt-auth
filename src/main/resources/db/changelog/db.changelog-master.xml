@@ -68,5 +68,10 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 		<addColumn tableName="user">
 			<column name="previous_login_date_time" type="timestamp" />
 		</addColumn>
-	</changeSet>	
+	</changeSet>
+	<changeSet id="20210604121000" author="svoboda-vlad">
+		<addColumn tableName="user">
+			<column name="login_provider" type="varchar(255)" />
+		</addColumn>
+	</changeSet>		
 </databaseChangeLog>

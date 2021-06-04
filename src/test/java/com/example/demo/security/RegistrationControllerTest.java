@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.security.User.LoginProvider;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class RegistrationControllerTest {
@@ -46,7 +48,7 @@ class RegistrationControllerTest {
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
-		User user = new User("test1",encoder.encode("test123"));
+		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL);
 		given(userRepository.findByUsername("test1")).willReturn(user);
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))

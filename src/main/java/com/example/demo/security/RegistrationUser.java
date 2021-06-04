@@ -5,6 +5,8 @@ import javax.validation.constraints.Size;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.demo.security.User.LoginProvider;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -26,7 +28,7 @@ public class RegistrationUser {
 	private String password;
 
 	public User toUser(PasswordEncoder passwordEncoder) {
-		return new User(username, passwordEncoder.encode(password));
+		return new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL);
 	}
 
 }

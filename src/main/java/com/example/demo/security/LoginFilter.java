@@ -18,10 +18,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.example.demo.security.User.LoginProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
-	
+
 	private final Logger log = LoggerFactory.getLogger(LoginFilter.class);
 
 	@Autowired
@@ -36,6 +37,12 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException, IOException {
 		User user = resolveUser(req);
+		if (user == null) {
+			user = new User();
+		} else {
+			if (userRepository.findByUsername(user.getUsername()).getLoginProvider() != LoginProvider.INTERNAL)
+				user = new User();
+		}
 		return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),
 				user.getPassword(), Collections.emptyList()));
 	}
@@ -48,13 +55,13 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 		user.updateLastLoginDateTime();
 		userRepository.save(user);
 	}
-	
-	private User resolveUser(HttpServletRequest request)  {		
+
+	private User resolveUser(HttpServletRequest request) {
 		try {
 			return new ObjectMapper().readValue(request.getInputStream(), User.class);
 		} catch (Exception e) {
 			log.info("Username and password parsing from request body failed: {}.", e.getMessage());
 		}
-		return new User();
-	}	
+		return null;
+	}
 }

@@ -45,7 +45,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException, IOException {
 
-		GoogleIdTokenEntity tokenEntity = resolveGoogleIdTokenEntity(req);		
+		GoogleIdTokenEntity tokenEntity = resolveGoogleIdTokenEntity(req);
+		if (tokenEntity == null) tokenEntity = new GoogleIdTokenEntity();
 		String username = "";
 		try {
 			GoogleIdToken idToken = googleIdTokenVerifier.verify(tokenEntity.getIdToken());
@@ -75,7 +76,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 		} catch (Exception e) {
 			log.info("ID token parsing from request body failed: {}.", e.getMessage());
 		}
-		return new GoogleIdTokenEntity();
+		return null;
 	}	
 	
 }

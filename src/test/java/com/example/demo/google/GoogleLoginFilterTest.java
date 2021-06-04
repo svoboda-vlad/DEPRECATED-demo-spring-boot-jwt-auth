@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.security.User;
 import com.example.demo.security.UserRepository;
+import com.example.demo.security.User.LoginProvider;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -56,7 +57,7 @@ class GoogleLoginFilterTest {
 		Payload payload = new Payload();
 		payload.setSubject("user3");
 		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
-		User user = new User("user3",encoder.encode(""));
+		User user = new User("user3",encoder.encode(""),LoginProvider.GOOGLE);
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		given(userRepository.findByUsername("user3")).willReturn(user);
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);

@@ -17,6 +17,7 @@ import com.example.demo.exchangerate.CurrencyCode;
 import com.example.demo.exchangerate.CurrencyCodeRepository;
 import com.example.demo.exchangerate.ExchangeRate;
 import com.example.demo.security.User;
+import com.example.demo.security.User.LoginProvider;
 import com.example.demo.security.UserRepository;
 
 import io.swagger.v3.oas.models.Components;
@@ -49,8 +50,8 @@ public class DemoApplication {
 					currencyCodeRepo.saveAll(currencyCodes);
 				}				
 				
-				User user1 = new User("user1", encoder.encode("pass123"));
-				User user2 = new User("108564931079495851483", encoder.encode(""));
+				User user1 = new User("user1", encoder.encode("pass123"),LoginProvider.INTERNAL);
+				User user2 = new User("108564931079495851483", encoder.encode(""),LoginProvider.GOOGLE);
 				List<User> users = new ArrayList<User>(Arrays.asList(user1, user2));				
 				if(userRepo.findAll().size() == 0) {
 					userRepo.saveAll(users);
