@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.demo.security.User.LoginProvider;
+
 @SpringBootTest
 class UserDetailsServiceImplTest {
 
@@ -26,7 +28,7 @@ class UserDetailsServiceImplTest {
 
 	@Test
 	void testLoadUserByUsernameOk() {
-		User user = new User("user", encoder.encode("password"));
+		User user = new User("user", encoder.encode("password"),LoginProvider.INTERNAL);
 
 		given(userRepository.findByUsername(user.getUsername())).willReturn(user);
 
@@ -35,7 +37,7 @@ class UserDetailsServiceImplTest {
 
 	@Test
 	void testLoadUserByUsernameThrowsException() {
-		User user = new User("user", encoder.encode("password"));
+		User user = new User("user", encoder.encode("password"),LoginProvider.INTERNAL);
 
 		given(userRepository.findByUsername(user.getUsername())).willReturn(null);
 

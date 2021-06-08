@@ -1,13 +1,15 @@
-package com.example.demo.security;
+package com.example.demo.google;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
+import java.security.GeneralSecurityException;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +21,19 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.security.RegistrationUser;
+import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
+import com.example.demo.security.UserRepository;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.json.webtoken.JsonWebSignature.Header;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 //@WithMockUser - not needed
-class LoginFilterTest {
+class GoogleLoginFilterTest {
 	
 	@Autowired
 	private MockMvc mvc;
@@ -37,15 +46,23 @@ class LoginFilterTest {
 	
 	@MockBean
 	private UserRepository userRepository;
+	
+	@MockBean
+	private GoogleIdTokenVerifier googleIdTokenVerifier;	
 
 	@Test
-	void testLoginNoLastLoginDateTimeOk200() throws Exception {
-		String requestUrl = "/login";
-		String requestJson = "{\"username\":\"user3\",\"password\":\"password3\"}";
+	void testGoogleLoginOk200() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"abcdef\"}";
 		int expectedStatus = 200;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
+		Header header = new Header();
+		Payload payload = new Payload();
+		payload.setSubject("user3");
+		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
+		User user = new User("user3",encoder.encode(""),LoginProvider.GOOGLE);
+		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		given(userRepository.findByUsername("user3")).willReturn(user);
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
@@ -53,79 +70,61 @@ class LoginFilterTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
-		
-		assertThat(user.getLastLoginDateTime()).isNotNull();
-		assertThat(user.getPreviousLoginDateTime()).isNotNull();		
 	}
 	
 	@Test
-	void testLoginWithLastLoginDateTimeOk200() throws Exception {
-		String requestUrl = "/login";
-		String requestJson = "{\"username\":\"user3\",\"password\":\"password3\"}";
+	void testGoogleLoginRegisterNewUserOk200() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"abcdef\"}";
 		int expectedStatus = 200;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
-		LocalDateTime lastLoginDateTime = LocalDateTime.now();
-		user.setLastLoginDateTime(lastLoginDateTime);
-		given(userRepository.findByUsername("user3")).willReturn(user);
+		Header header = new Header();
+		Payload payload = new Payload();
+		payload.setSubject("user3");
+		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
+		RegistrationUser registrationUser = new RegistrationUser("user3","");
+		User user = registrationUser.toUserGoogle(encoder);
+		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
+		when(userRepository.findByUsername("user3"))
+		   .thenReturn(null)
+		   .thenReturn(user);
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
-				
+		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
 		
-		assertThat(user.getLastLoginDateTime()).isAfter(lastLoginDateTime);
-		assertThat(user.getPreviousLoginDateTime()).isEqualTo(lastLoginDateTime);
-		
+		verify(userRepository, times(1)).save(user);
 	}	
 	
 	@Test
-	void testLoginWrongPasswordUnauthorized401() throws Exception {
-		String requestUrl = "/login";
-		String requestJson = "{\"username\":\"user3\",\"password\":\"wrongpassword\"}";
+	void testGoogleLoginInvalidIdTokenUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"invalididtoken\"}";
 		int expectedStatus = 401;
 		String expectedJson = "";
-		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
-		given(userRepository.findByUsername("user3")).willReturn(user);
-		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
-				
-		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
-		.andExpect(status().is(expectedStatus))
-				.andExpect(content().string(expectedJson))
-				.andExpect(header().doesNotExist("Authorization"));
-	}
-	
-	@Test
-	void testLoginInvalidJsonUnauthorized401() throws Exception {
-		String requestUrl = "/login";
-		String requestJson = "{\"usernamexxx\":\"user3\",\"password\":\"password3\"}";
-		int expectedStatus = 401;
-		String expectedJson = "";
-						
-		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
-		.andExpect(status().is(expectedStatus))
-				.andExpect(content().string(expectedJson))
-				.andExpect(header().doesNotExist("Authorization"));
-	}
-	
-	@Test
-	void testLoginInvalidLoginProviderUnauthorized401() throws Exception {
-		String requestUrl = "/login";
-		String requestJson = "{\"username\":\"user3\",\"password\":\"password3\"}";
-		int expectedStatus = 401;
-		String expectedJson = "";
-		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.GOOGLE);
-		given(userRepository.findByUsername("user3")).willReturn(user);
-		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
+
+		given(googleIdTokenVerifier.verify("invalididtoken")).willThrow(GeneralSecurityException.class);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().doesNotExist("Authorization"));
 	}	
+	
+	@Test
+	void testGoogleLoginInvalidJsonUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idTokenxxx\":\"abcdef\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}		
 	
 }

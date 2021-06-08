@@ -8,17 +8,23 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.example.demo.security.User.LoginProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
+
+	private final Logger log = LoggerFactory.getLogger(LoginFilter.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -31,7 +37,13 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException, IOException {
-		User user = new ObjectMapper().readValue(req.getInputStream(), User.class);
+		User user = resolveUser(req);
+		if (user == null) {
+			throw new BadCredentialsException("");
+		} else {
+			if (userRepository.findByUsername(user.getUsername()).getLoginProvider() != LoginProvider.INTERNAL)
+				throw new BadCredentialsException("");
+		}
 		return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),
 				user.getPassword(), Collections.emptyList()));
 	}
@@ -43,5 +55,14 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 		User user = userRepository.findByUsername(auth.getName());
 		user.updateLastLoginDateTime();
 		userRepository.save(user);
+	}
+
+	private User resolveUser(HttpServletRequest request) {
+		try {
+			return new ObjectMapper().readValue(request.getInputStream(), User.class);
+		} catch (Exception e) {
+			log.info("Username and password parsing from request body failed: {}.", e.getMessage());
+		}
+		return null;
 	}
 }

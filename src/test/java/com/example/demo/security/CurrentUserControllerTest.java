@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.security.User.LoginProvider;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 //@WithMockUser - not needed
@@ -42,7 +44,7 @@ class CurrentUserControllerTest {
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
-		User user = new User("user",encoder.encode("password"));
+		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL);
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(user);
@@ -53,7 +55,7 @@ class CurrentUserControllerTest {
 	}
 	
 	@Test
-	void testGetCurrentUSerNotFound404() throws Exception {
+	void testGetCurrentUserNotFound404() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 404;
 		String expectedJson = "";
@@ -61,6 +63,18 @@ class CurrentUserControllerTest {
 		this.mvc.perform(get(requestUrl).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testGetCurrentUserInvalidTokenNotFound404() throws Exception {		
+		String requestUrl = "/current-user";
+		int expectedStatus = 404;
+		String expectedJson = "";
+				
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader() + "xxx").accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));		
+		
 	}	
 
 }

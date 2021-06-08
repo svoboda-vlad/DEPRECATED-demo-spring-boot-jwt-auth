@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,7 +35,7 @@ public class User implements UserDetails {
 	private long id;
 
     @NotNull
-    @Size(min = 1, max = 50)
+    @Size(min = 1, max = 255)
     @NonNull
 	private String username;
 
@@ -42,8 +44,14 @@ public class User implements UserDetails {
     @NonNull
     private String password;
     
+    @NotNull
+    @NonNull
+    @Enumerated(EnumType.STRING)
+    private LoginProvider loginProvider;
+    
     private LocalDateTime lastLoginDateTime;
     private LocalDateTime previousLoginDateTime;
+    
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -79,5 +87,10 @@ public class User implements UserDetails {
 		}
 		this.lastLoginDateTime = currentDateTime;
 	}
+	
+	public enum LoginProvider {	
+		INTERNAL,
+		GOOGLE
+	}	
 
 }
