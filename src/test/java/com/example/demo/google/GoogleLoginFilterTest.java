@@ -1,6 +1,9 @@
 package com.example.demo.google;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -18,9 +21,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.security.RegistrationUser;
 import com.example.demo.security.User;
-import com.example.demo.security.UserRepository;
 import com.example.demo.security.User.LoginProvider;
+import com.example.demo.security.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -67,6 +71,33 @@ class GoogleLoginFilterTest {
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
 	}
+	
+	@Test
+	void testGoogleLoginRegisterNewUserOk200() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"abcdef\"}";
+		int expectedStatus = 200;
+		String expectedJson = "";
+		
+		Header header = new Header();
+		Payload payload = new Payload();
+		payload.setSubject("user3");
+		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
+		RegistrationUser registrationUser = new RegistrationUser("user3","");
+		User user = registrationUser.toUserGoogle(encoder);
+		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
+		when(userRepository.findByUsername("user3"))
+		   .thenReturn(null)
+		   .thenReturn(user);
+		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
+		
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().exists("Authorization"));
+		
+		verify(userRepository, times(1)).save(user);
+	}	
 	
 	@Test
 	void testGoogleLoginInvalidIdTokenUnauthorized401() throws Exception {
