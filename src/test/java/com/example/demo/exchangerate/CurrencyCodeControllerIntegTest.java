@@ -17,19 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
-import com.example.demo.security.User;
-import com.example.demo.security.User.LoginProvider;
-import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-// using demo data
 //@WithMockUser - not needed
 class CurrencyCodeControllerIntegTest {
 	
@@ -38,13 +33,7 @@ class CurrencyCodeControllerIntegTest {
 	
 	@Autowired
 	private CurrencyCodeRepository currencyCodeRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
-	private PasswordEncoder encoder;
-	
+		
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
 	}
@@ -60,12 +49,7 @@ class CurrencyCodeControllerIntegTest {
 				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
 				);
 		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
-		currencyCodeRepository.saveAll(currencyCodes);
-		
-		User user1 = new User("user1", encoder.encode("pass123"),LoginProvider.INTERNAL);
-		User user2 = new User("108564931079495851483", encoder.encode(""),LoginProvider.GOOGLE);
-		List<User> users = new ArrayList<User>(Arrays.asList(user1, user2));
-		userRepository.saveAll(users);
+		currencyCodeRepository.saveAll(currencyCodes);		
 	}
 
 	@Test

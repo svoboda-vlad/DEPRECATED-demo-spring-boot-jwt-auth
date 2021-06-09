@@ -102,7 +102,7 @@ Database tables:
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
 - user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP), login_provider(VARCHAR(255))
 
-CommandLineRunner - default currency codes (EUR, USD), default exchange rates (15.4.2021), default user: (username: "user1", password "pass123" + username: "108564931079495851483", password: "")
+CommandLineRunner - default user: (username: "user1", password "pass123" + username: "108564931079495851483", password: "")
 
 ## Authentication
 
