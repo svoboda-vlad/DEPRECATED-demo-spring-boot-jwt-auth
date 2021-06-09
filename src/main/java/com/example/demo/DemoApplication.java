@@ -32,7 +32,7 @@ public class DemoApplication {
 	}
 	
 	@Bean
-	@Profile("dev")
+	@Profile("testdata")
 	public CommandLineRunner dataLoader(CurrencyCodeRepository currencyCodeRepo, UserRepository userRepo, PasswordEncoder encoder) {
 		return new CommandLineRunner() {
 			@Override

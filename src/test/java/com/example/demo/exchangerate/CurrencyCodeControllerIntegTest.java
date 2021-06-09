@@ -1,53 +1,80 @@
 package com.example.demo.exchangerate;
 
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.User;
+import com.example.demo.security.User.LoginProvider;
+import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
+// using demo data
 //@WithMockUser - not needed
-class CurrencyCodeControllerTest {
+class CurrencyCodeControllerIntegTest {
 	
 	@Autowired
 	private MockMvc mvc;
-
-	@MockBean
+	
+	@Autowired
 	private CurrencyCodeRepository currencyCodeRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private PasswordEncoder encoder;
 	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
+	}
+	
+	@BeforeEach
+	void initData() {
+		CurrencyCode currencyCode1 = new CurrencyCode("EUR", "EMU", 1);
+		CurrencyCode currencyCode2 = new CurrencyCode("USD", "USA", 1);
+		currencyCode1.addExchangeRate(
+				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1)
+				);
+		currencyCode2.addExchangeRate(
+				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
+				);
+		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
+		currencyCodeRepository.saveAll(currencyCodes);
+		
+		User user1 = new User("user1", encoder.encode("pass123"),LoginProvider.INTERNAL);
+		User user2 = new User("108564931079495851483", encoder.encode(""),LoginProvider.GOOGLE);
+		List<User> users = new ArrayList<User>(Arrays.asList(user1, user2));
+		userRepository.saveAll(users);
 	}
 
 	@Test
 	void testGetAllCurrencyCodesOk200() throws Exception {
 		String requestUrl = "/currency-code";
 		int expectedStatus = 200;
-		String expectedJson = "[{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}," 
-		+ "{\"id\":0,\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}]";
-		
-		List<CurrencyCode> codesList = new ArrayList<CurrencyCode>();
-		codesList.add(new CurrencyCode("EUR", "EMU", 1));
-		codesList.add(new CurrencyCode("USD", "USA", 1));
-		
-		given(currencyCodeRepository.findAll()).willReturn(codesList);
-		
+		String expectedJson = "[{\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}," 
+		+ "{\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}]";
+				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
@@ -56,12 +83,9 @@ class CurrencyCodeControllerTest {
 	@Test
 	void testCreateCurrencyCodeCreated201() throws Exception {
 		String requestUrl = "/currency-code";
-		String requestJson = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
+		String requestJson = "{\"id\":0,\"currencyCode\":\"GBP\",\"country\":\"Velká Británie\",\"rateQty\":1}";
 		int expectedStatus = 201;
-		String expectedJson = requestJson;
-		
-		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
-		given(currencyCodeRepository.save(code)).willReturn(code);		
+		String expectedJson = "{\"currencyCode\":\"GBP\",\"country\":\"Velká Británie\",\"rateQty\":1}";
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -74,11 +98,7 @@ class CurrencyCodeControllerTest {
 		String requestJson = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
 		int expectedStatus = 400;
 		String expectedJson = "";
-		
-		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
-		given(currencyCodeRepository.save(code)).willReturn(code);		
-		given(currencyCodeRepository.findByCurrencyCode("EUR")).willReturn(code);
-				
+						
 		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
@@ -88,11 +108,8 @@ class CurrencyCodeControllerTest {
 	void testGetCurrencyCodeOk200() throws Exception {
 		String requestUrl = "/currency-code/1";
 		int expectedStatus = 200;
-		String expectedJson = "{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
-		
-		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
-		given(currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));		
-				
+		String expectedJson = "{\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
+						
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
@@ -100,11 +117,9 @@ class CurrencyCodeControllerTest {
 	
 	@Test
 	void testGetCurrencyCodeNotFound404() throws Exception {
-		String requestUrl = "/currency-code/1";
+		String requestUrl = "/currency-code/3";
 		int expectedStatus = 404;
 		String expectedJson = "";
-		
-		given(currencyCodeRepository.findById(1L)).willReturn(Optional.empty());		
 				
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
