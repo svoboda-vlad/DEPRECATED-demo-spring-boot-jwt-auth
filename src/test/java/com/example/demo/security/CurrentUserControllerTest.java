@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -47,7 +49,7 @@ class CurrentUserControllerTest {
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL);
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
-		given(userRepository.findByUsername("user")).willReturn(user);
+		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))

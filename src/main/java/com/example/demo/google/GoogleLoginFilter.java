@@ -2,6 +2,7 @@ package com.example.demo.google;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -62,7 +63,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 				Payload payload = idToken.getPayload();
 				username = payload.getSubject();
 
-				if (userRepository.findByUsername(username) == null) {
+				if (userRepository.findByUsername(username).isEmpty()) {
 					RegistrationUser user = new RegistrationUser(username, "");
 					userRepository.save(user.toUserGoogle(encoder));
 				}
@@ -79,9 +80,12 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		AuthenticationService.addToken(res, auth.getName());
-		User user = userRepository.findByUsername(auth.getName());
-		user.updateLastLoginDateTime();
-		userRepository.save(user);
+		Optional<User> optUser = userRepository.findByUsername(auth.getName());
+		if (optUser.isPresent()) {
+			User user = optUser.get();
+			user.updateLastLoginDateTime();
+			userRepository.save(user);
+		}
 	}
 
 	private GoogleIdTokenEntity resolveGoogleIdTokenEntity(HttpServletRequest request) {

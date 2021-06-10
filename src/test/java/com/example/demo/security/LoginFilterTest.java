@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ class LoginFilterTest {
 		String expectedJson = "";
 		
 		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
-		given(userRepository.findByUsername("user3")).willReturn(user);
+		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
@@ -68,7 +69,7 @@ class LoginFilterTest {
 		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
 		LocalDateTime lastLoginDateTime = LocalDateTime.now();
 		user.setLastLoginDateTime(lastLoginDateTime);
-		given(userRepository.findByUsername("user3")).willReturn(user);
+		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
@@ -89,7 +90,7 @@ class LoginFilterTest {
 		String expectedJson = "";
 		
 		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
-		given(userRepository.findByUsername("user3")).willReturn(user);
+		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
@@ -119,7 +120,7 @@ class LoginFilterTest {
 		String expectedJson = "";
 		
 		User user = new User("user3",encoder.encode("password3"), LoginProvider.GOOGLE);
-		given(userRepository.findByUsername("user3")).willReturn(user);
+		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))

@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -49,7 +51,7 @@ class RegistrationControllerTest {
 		String expectedJson = "";
 		
 		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL);
-		given(userRepository.findByUsername("test1")).willReturn(user);
+		given(userRepository.findByUsername("test1")).willReturn(Optional.of(user));
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
