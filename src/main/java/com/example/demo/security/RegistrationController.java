@@ -21,7 +21,7 @@ public class RegistrationController {
     
     @PostMapping(REGISTRATION_URL)
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationUser registrationUser) {
-		if (userRepository.findByUsername(registrationUser.getUsername()) != null)
+		if (userRepository.findByUsername(registrationUser.getUsername()).isPresent())
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		
 		userRepository.save(registrationUser.toUserInternal(encoder));    	

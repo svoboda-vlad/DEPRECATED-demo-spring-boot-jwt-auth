@@ -1,5 +1,7 @@
 package com.example.demo.security;
 
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,9 +17,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username);
-		if (user != null) {
-			return user;
+		Optional<User> optUser = userRepository.findByUsername(username);
+		if (optUser.isPresent()) {
+			return optUser.get();
 		}
 		throw new UsernameNotFoundException("User '" + username + "' not found");
 	}

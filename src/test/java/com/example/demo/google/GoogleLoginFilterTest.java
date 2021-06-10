@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.security.GeneralSecurityException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ class GoogleLoginFilterTest {
 		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
 		User user = new User("user3",encoder.encode(""),LoginProvider.GOOGLE);
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
-		given(userRepository.findByUsername("user3")).willReturn(user);
+		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
@@ -87,8 +88,8 @@ class GoogleLoginFilterTest {
 		User user = registrationUser.toUserGoogle(encoder);
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		when(userRepository.findByUsername("user3"))
-		   .thenReturn(null)
-		   .thenReturn(user);
+		   .thenReturn(Optional.empty())
+		   .thenReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))

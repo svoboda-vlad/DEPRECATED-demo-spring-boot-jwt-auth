@@ -1,5 +1,7 @@
 package com.example.demo.security;
 
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,7 +27,11 @@ public class CurrentUserController {
 		if (authentication == null) return new ResponseEntity<CurrentUser>(HttpStatus.NOT_FOUND);
 		
 		UserDetails userDetails = userService.loadUserByUsername(authentication.getName());
-		User user = userRepository.findByUsername(userDetails.getUsername());
+		Optional<User> optUser = userRepository.findByUsername(userDetails.getUsername());
+		
+		if (optUser.isEmpty()) return new ResponseEntity<CurrentUser>(HttpStatus.NOT_FOUND);
+		
+		User user = optUser.get();
 		CurrentUser currentUser = new CurrentUser(user.getUsername(), user.getLastLoginDateTime(), user.getPreviousLoginDateTime());
 		return ResponseEntity.ok(currentUser);
 	}

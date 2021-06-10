@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,10 +54,10 @@ class LoginFilterIntegTest {
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
 		
-		User user = userRepository.findByUsername("user321");
+		Optional<User> user = userRepository.findByUsername("user321");
 		
-		assertThat(user.getLastLoginDateTime()).isNotNull();
-		assertThat(user.getPreviousLoginDateTime()).isNotNull();		
+		assertThat(user.get().getLastLoginDateTime()).isNotNull();
+		assertThat(user.get().getPreviousLoginDateTime()).isNotNull();		
 	}
 	
 	@Test
@@ -76,10 +77,10 @@ class LoginFilterIntegTest {
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
 		
-		User user = userRepository.findByUsername("user322");
+		Optional<User> user = userRepository.findByUsername("user322");
 		
-		assertThat(user.getLastLoginDateTime()).isAfter(lastLoginDateTime);
-		assertThat(user.getPreviousLoginDateTime()).isEqualTo(lastLoginDateTime);
+		assertThat(user.get().getLastLoginDateTime()).isAfter(lastLoginDateTime);
+		assertThat(user.get().getPreviousLoginDateTime()).isEqualTo(lastLoginDateTime);
 		
 	}	
 	
