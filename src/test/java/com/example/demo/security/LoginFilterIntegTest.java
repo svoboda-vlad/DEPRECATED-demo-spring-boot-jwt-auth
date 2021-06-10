@@ -1,0 +1,117 @@
+package com.example.demo.security;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.demo.security.User.LoginProvider;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+//@WithMockUser - not needed
+class LoginFilterIntegTest {
+	
+	@Autowired
+	private MockMvc mvc;
+	
+	@Autowired
+	private PasswordEncoder encoder;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@BeforeEach
+	void initData() {
+		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL);
+		userRepository.save(user);
+	}	
+
+	@Test
+	void testLoginNoLastLoginDateTimeOk200() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"username\":\"user321\",\"password\":\"pass321\"}";
+		int expectedStatus = 200;
+		String expectedJson = "";
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().exists("Authorization"));
+		
+		User user = userRepository.findByUsername("user321");
+		
+		assertThat(user.getLastLoginDateTime()).isNotNull();
+		assertThat(user.getPreviousLoginDateTime()).isNotNull();		
+	}
+	
+	@Test
+	void testLoginWithLastLoginDateTimeOk200() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"username\":\"user322\",\"password\":\"pass322\"}";
+		int expectedStatus = 200;
+		String expectedJson = "";
+		
+		User userWithLastLogin = new User("user322", encoder.encode("pass322"),LoginProvider.INTERNAL);
+		LocalDateTime lastLoginDateTime = LocalDateTime.now();
+		userWithLastLogin.setLastLoginDateTime(lastLoginDateTime);
+		userRepository.save(userWithLastLogin);		
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().exists("Authorization"));
+		
+		User user = userRepository.findByUsername("user322");
+		
+		assertThat(user.getLastLoginDateTime()).isAfter(lastLoginDateTime);
+		assertThat(user.getPreviousLoginDateTime()).isEqualTo(lastLoginDateTime);
+		
+	}	
+	
+	@Test
+	void testLoginWrongPasswordUnauthorized401() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"username\":\"user321\",\"password\":\"wrongpassword\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+						
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}
+	
+	@Test
+	void testLoginInvalidLoginProviderUnauthorized401() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"username\":\"user323\",\"password\":\"pass323\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+		
+		User userWithGoogleLogin = new User("user323", encoder.encode("pass323"),LoginProvider.GOOGLE);
+		LocalDateTime lastLoginDateTime = LocalDateTime.now();
+		userWithGoogleLogin.setLastLoginDateTime(lastLoginDateTime);
+		userRepository.save(userWithGoogleLogin);				
+						
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}	
+	
+}
