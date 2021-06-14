@@ -1,4 +1,4 @@
-package com.example.demo.google;
+package com.example.demo.integration;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

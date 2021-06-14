@@ -1,4 +1,4 @@
-package com.example.demo.exchangerate;
+package com.example.demo.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -20,6 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.exchangerate.CurrencyCode;
+import com.example.demo.exchangerate.CurrencyCodeRepository;
+import com.example.demo.exchangerate.ExchangeRate;
 import com.example.demo.security.AuthenticationService;
 
 @SpringBootTest
