@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @RequiredArgsConstructor
 @NoArgsConstructor
+@Table(name = "user")
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
