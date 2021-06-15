@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -14,7 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
+import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc

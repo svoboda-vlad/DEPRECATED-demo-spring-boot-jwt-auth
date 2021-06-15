@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @RequiredArgsConstructor
 @NoArgsConstructor
+@Table(name = "exchange_rate", schema = "public") // needed for PostgreSQL
 public class ExchangeRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
