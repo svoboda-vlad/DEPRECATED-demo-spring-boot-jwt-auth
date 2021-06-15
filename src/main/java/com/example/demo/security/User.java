@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "user", schema = "public")
+@Table(name = "user", schema = "public") // needed for PostgreSQL
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = 1L;

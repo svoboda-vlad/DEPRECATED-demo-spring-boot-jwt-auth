@@ -97,6 +97,8 @@ GoogleIdTokenEntity - idToken (String, min = 1, max = 2048)
 
 H2 in-memory database + liquibase
 
+JDBC URL: "jdbc:h2:mem:testdb"
+
 Database tables:
 - currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL UNIQUE), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
@@ -159,8 +161,10 @@ runtime scope:
 - jjwt-impl
 - jjwt-jackson
 - h2
+- postgresql
 
 ## Properties
+DEFAULT:
 
 spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.xml
 
@@ -173,3 +177,13 @@ spring.datasource.generate-unique-name=false
 spring.profiles.active=dev
 
 google.client.clientids=733460469950-9bsam7nba7ljgj7nmhu3td2mrlctvhet.apps.googleusercontent.com
+
+PROD:
+
+spring.h2.console.enabled=false
+
+## HEROKU Config Vars
+
+SPRING_PROFILES_ACTIVE=prod
+
+DATABASE_URL=...
