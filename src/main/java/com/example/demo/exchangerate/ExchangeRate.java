@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "exchange_rate")
+@Table(name = "exchange_rate", schema = "public")
 public class ExchangeRate implements Serializable {
 
     private static final long serialVersionUID = 1L;

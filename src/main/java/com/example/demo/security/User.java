@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "user")
+@Table(name = "user", schema = "public")
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = 1L;

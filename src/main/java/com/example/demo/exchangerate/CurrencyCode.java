@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "currency_code")
+@Table(name = "currency_code", schema = "public")
 public class CurrencyCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
