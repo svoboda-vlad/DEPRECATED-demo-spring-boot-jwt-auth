@@ -168,15 +168,25 @@ DEFAULT:
 
 spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.xml
 
+spring.profiles.active=dev
+
+google.client.clientids=733460469950-9bsam7nba7ljgj7nmhu3td2mrlctvhet.apps.googleusercontent.com
+
+DEV:
+
 spring.h2.console.enabled=true
 
 spring.h2.console.settings.web-allow-others=true
 
 spring.datasource.generate-unique-name=false
 
-spring.profiles.active=dev
+INTEG:
 
-google.client.clientids=733460469950-9bsam7nba7ljgj7nmhu3td2mrlctvhet.apps.googleusercontent.com
+spring.datasource.url=jdbc:postgresql://localhost:5432/homestead
+
+spring.datasource.username=homestead
+
+spring.datasource.password=secret
 
 PROD:
 
