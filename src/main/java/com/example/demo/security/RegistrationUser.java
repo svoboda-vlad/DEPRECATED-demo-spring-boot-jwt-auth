@@ -38,11 +38,17 @@ public class RegistrationUser {
 	private String familyName;	
 
 	public User toUserInternal(PasswordEncoder passwordEncoder) {
-		return new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL, givenName, familyName);
+		User user = new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL);
+		user.setFamilyName(familyName);
+		user.setGivenName(givenName);
+		return user;
 	}
 	
 	public User toUserGoogle(PasswordEncoder passwordEncoder) {
-		return new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE, givenName, familyName);
+		User user = new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE);
+		user.setFamilyName(familyName);
+		user.setGivenName(givenName);
+		return user;		
 	}
 
 }
