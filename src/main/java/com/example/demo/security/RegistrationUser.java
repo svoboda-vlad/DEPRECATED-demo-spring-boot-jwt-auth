@@ -26,13 +26,23 @@ public class RegistrationUser {
 	@Size(min = 4, max = 100)
 	@NonNull
 	private String password;
+	
+    @NotNull
+    @Size(min = 1, max = 255)
+    @NonNull
+	private String givenName;
+    
+    @NotNull
+    @Size(min = 1, max = 255)
+    @NonNull
+	private String familyName;	
 
 	public User toUserInternal(PasswordEncoder passwordEncoder) {
-		return new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL);
+		return new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL, givenName, familyName);
 	}
 	
 	public User toUserGoogle(PasswordEncoder passwordEncoder) {
-		return new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE);
+		return new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE, givenName, familyName);
 	}
 
 }

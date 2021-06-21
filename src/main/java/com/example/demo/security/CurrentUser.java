@@ -10,5 +10,6 @@ public class CurrentUser {
 	private final String username;
 	private final LocalDateTime lastLoginDateTime;
 	private final LocalDateTime previousLoginDateTime;
-	
+	private final String givenName;	
+	private final String familyName;	
 }

@@ -46,7 +46,7 @@ class LoginFilterTest {
 		int expectedStatus = 200;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
+		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL, "User 3", "User 3");
 		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
@@ -66,7 +66,7 @@ class LoginFilterTest {
 		int expectedStatus = 200;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
+		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL, "User 3", "User 3");
 		LocalDateTime lastLoginDateTime = LocalDateTime.now();
 		user.setLastLoginDateTime(lastLoginDateTime);
 		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
@@ -89,7 +89,7 @@ class LoginFilterTest {
 		int expectedStatus = 401;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL);
+		User user = new User("user3",encoder.encode("password3"), LoginProvider.INTERNAL, "User 3", "User 3");
 		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				
@@ -119,7 +119,7 @@ class LoginFilterTest {
 		int expectedStatus = 401;
 		String expectedJson = "";
 		
-		User user = new User("user3",encoder.encode("password3"), LoginProvider.GOOGLE);
+		User user = new User("user3",encoder.encode("password3"), LoginProvider.GOOGLE, "User 3", "User 3");
 		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);
 				

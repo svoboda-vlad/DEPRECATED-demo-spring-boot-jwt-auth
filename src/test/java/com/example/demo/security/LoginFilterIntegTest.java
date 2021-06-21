@@ -38,7 +38,7 @@ class LoginFilterIntegTest {
 	
 	@BeforeEach
 	void initData() {
-		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL);
+		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
 		userRepository.save(user);
 	}	
 
@@ -67,7 +67,7 @@ class LoginFilterIntegTest {
 		int expectedStatus = 200;
 		String expectedJson = "";
 		
-		User userWithLastLogin = new User("user322", encoder.encode("pass322"),LoginProvider.INTERNAL);
+		User userWithLastLogin = new User("user322", encoder.encode("pass322"),LoginProvider.INTERNAL, "User 322", "User 322");
 		LocalDateTime lastLoginDateTime = LocalDateTime.now();
 		userWithLastLogin.setLastLoginDateTime(lastLoginDateTime);
 		userRepository.save(userWithLastLogin);		
@@ -104,7 +104,7 @@ class LoginFilterIntegTest {
 		int expectedStatus = 401;
 		String expectedJson = "";
 		
-		User userWithGoogleLogin = new User("user323", encoder.encode("pass323"),LoginProvider.GOOGLE);
+		User userWithGoogleLogin = new User("user323", encoder.encode("pass323"),LoginProvider.GOOGLE, "User 323", "User 323");
 		LocalDateTime lastLoginDateTime = LocalDateTime.now();
 		userWithGoogleLogin.setLastLoginDateTime(lastLoginDateTime);
 		userRepository.save(userWithGoogleLogin);				

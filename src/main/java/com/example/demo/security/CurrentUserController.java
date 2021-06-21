@@ -32,7 +32,7 @@ public class CurrentUserController {
 		if (optUser.isEmpty()) return new ResponseEntity<CurrentUser>(HttpStatus.NOT_FOUND);
 		
 		User user = optUser.get();
-		CurrentUser currentUser = new CurrentUser(user.getUsername(), user.getLastLoginDateTime(), user.getPreviousLoginDateTime());
+		CurrentUser currentUser = new CurrentUser(user.getUsername(), user.getLastLoginDateTime(), user.getPreviousLoginDateTime(), user.getGivenName(), user.getFamilyName());
 		return ResponseEntity.ok(currentUser);
 	}
 	

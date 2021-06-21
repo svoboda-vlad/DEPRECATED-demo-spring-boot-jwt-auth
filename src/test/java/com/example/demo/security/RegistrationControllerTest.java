@@ -34,7 +34,7 @@ class RegistrationControllerTest {
 	@Test
 	void testRegisterUserCreated201() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\"}";
+		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\", \"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 201;
 		String expectedJson = "";
 										
@@ -46,11 +46,11 @@ class RegistrationControllerTest {
 	@Test
 	void testRegisterUserExistsAlreadyBadRequest400() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\"}";
+		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\", \"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
-		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL);
+		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL, "Test 1", "Test 1");
 		given(userRepository.findByUsername("test1")).willReturn(Optional.of(user));
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
