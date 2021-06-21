@@ -40,7 +40,9 @@ class CurrentUserControllerIntegTest {
 	
 	@BeforeEach
 	void initData() {
-		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
+		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL);
+		user.setFamilyName("User 321");
+		user.setGivenName("User 321");
 		userRepository.save(user);
 	}	
 

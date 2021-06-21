@@ -93,9 +93,11 @@ class CurrencyCodeControllerIntegTest {
 
 	@Test
 	void testGetCurrencyCodeOk200() throws Exception {
-		String requestUrl = "/currency-code/1";
+		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
+		
+		String requestUrl = "/currency-code/" + code.getId();
 		int expectedStatus = 200;
-		String expectedJson = "{\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
+		String expectedJson = "{\"id\":" + code.getId() + ",\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
 						
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -104,7 +106,7 @@ class CurrencyCodeControllerIntegTest {
 	
 	@Test
 	void testGetCurrencyCodeNotFound404() throws Exception {
-		String requestUrl = "/currency-code/3";
+		String requestUrl = "/currency-code/9999";
 		int expectedStatus = 404;
 		String expectedJson = "";
 				

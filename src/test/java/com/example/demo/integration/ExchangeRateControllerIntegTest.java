@@ -99,7 +99,7 @@ class ExchangeRateControllerIntegTest {
 	
 	@Test
 	void testGetExchangeRatesByCurrencyCodeNotFound404() throws Exception {
-		String requestUrl = "/exchange-rate/currency-code/1";
+		String requestUrl = "/exchange-rate/currency-code/9999";
 		int expectedStatus = 404;
 		String expectedJson = "";
 						

@@ -50,7 +50,9 @@ class RegistrationControllerTest {
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
-		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL, "Test 1", "Test 1");
+		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL);
+		user.setFamilyName("Test 1");
+		user.setGivenName("Test 1");
 		given(userRepository.findByUsername("test1")).willReturn(Optional.of(user));
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
