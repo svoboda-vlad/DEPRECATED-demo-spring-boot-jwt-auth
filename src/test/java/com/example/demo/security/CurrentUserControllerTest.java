@@ -46,7 +46,7 @@ class CurrentUserControllerTest {
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
-		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL);
+		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL, "User", "User");
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));

@@ -34,14 +34,14 @@ class RegistrationControllerIntegTest {
 	
 	@BeforeEach
 	void initData() {
-		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL);
+		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
 		userRepository.save(user);
 	}	
 	
 	@Test
 	void testRegisterUserCreated201() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\"}";
+		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 201;
 		String expectedJson = "";
 										
@@ -53,7 +53,7 @@ class RegistrationControllerIntegTest {
 	@Test
 	void testRegisterUserExistsAlreadyBadRequest400() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"user321\", \"password\": \"test123\"}";
+		String requestJson = "{\"username\": \"user321\", \"password\": \"test123\",\"givenName\": \"User 321\",\"familyName\": \"User 321\"}";
 		int expectedStatus = 400;
 		String expectedJson = "";
 												

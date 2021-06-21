@@ -40,7 +40,7 @@ class CurrentUserControllerIntegTest {
 	
 	@BeforeEach
 	void initData() {
-		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL);
+		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
 		userRepository.save(user);
 	}	
 
@@ -48,7 +48,7 @@ class CurrentUserControllerIntegTest {
 	void testGetCurrentUSerOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null,\"givenName\":\"User 321\",\"familyName\":\"User 321\"}";
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))

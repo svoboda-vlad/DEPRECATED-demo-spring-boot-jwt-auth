@@ -32,13 +32,13 @@ public class DemoApplication {
 	public CommandLineRunner dataLoader(CurrencyCodeRepository currencyCodeRepo, UserRepository userRepo, PasswordEncoder encoder) {
 		return new CommandLineRunner() {
 			@Override
-			public void run(String... args) throws Exception {				
-				User user1 = new User("user1", encoder.encode("pass123"),LoginProvider.INTERNAL);
-				User user2 = new User("108564931079495851483", encoder.encode(""),LoginProvider.GOOGLE);
+			public void run(String... args) throws Exception {
+				User user1 = new User("user1", encoder.encode("pass123"),LoginProvider.INTERNAL,"User 1","User 1");
+				User user2 = new User("108564931079495851483", encoder.encode(""),LoginProvider.GOOGLE, "Google User 1", "Google User 1");
 				List<User> users = new ArrayList<User>(Arrays.asList(user1, user2));				
 				if(userRepo.findAll().size() == 0) {
 					userRepo.saveAll(users);
-				}				
+				}
 			}
 		};
 	}

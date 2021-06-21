@@ -61,10 +61,12 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 			GoogleIdToken idToken = googleIdTokenVerifier.verify(tokenEntity.getIdToken());
 			if (idToken != null) {
 				Payload payload = idToken.getPayload();
-				username = payload.getSubject();
+				username = payload.getSubject();			
 
 				if (userRepository.findByUsername(username).isEmpty()) {
-					RegistrationUser user = new RegistrationUser(username, "");
+					String familyName = (String) payload.get("family_name");
+					String givenName = (String) payload.get("given_name");					
+					RegistrationUser user = new RegistrationUser(username, "", givenName, familyName);
 					userRepository.save(user.toUserGoogle(encoder));
 				}
 			}

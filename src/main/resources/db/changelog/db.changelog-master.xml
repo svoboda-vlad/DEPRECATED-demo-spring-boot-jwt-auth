@@ -73,5 +73,11 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 		<addColumn tableName="user">
 			<column name="login_provider" type="varchar(255)" />
 		</addColumn>
-	</changeSet>		
+	</changeSet>
+	<changeSet id="20210621093300" author="svoboda-vlad">
+		<addColumn tableName="user">
+			<column name="family_name" type="varchar(255)" />
+			<column name="given_name" type="varchar(255)" />			
+		</addColumn>
+	</changeSet>	
 </databaseChangeLog>

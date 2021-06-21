@@ -45,7 +45,7 @@ class GoogleLoginFilterIntegTest {
 	
 	@BeforeEach
 	void initData() {
-		User user = new User("user321", encoder.encode(""),LoginProvider.GOOGLE);
+		User user = new User("user321", encoder.encode(""),LoginProvider.GOOGLE, "User 321", "User 321");
 		userRepository.save(user);
 	}
 
@@ -59,6 +59,8 @@ class GoogleLoginFilterIntegTest {
 		Header header = new Header();
 		Payload payload = new Payload();
 		payload.setSubject("user321");
+		payload.set("given_name", "User 321");
+		payload.set("family_name", "User 321");
 		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 				
@@ -78,6 +80,8 @@ class GoogleLoginFilterIntegTest {
 		Header header = new Header();
 		Payload payload = new Payload();
 		payload.setSubject("user322");
+		payload.set("given_name", "User 322");
+		payload.set("family_name", "User 322");		
 		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		
