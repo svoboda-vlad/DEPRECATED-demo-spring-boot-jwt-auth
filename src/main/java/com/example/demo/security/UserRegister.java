@@ -38,16 +38,12 @@ public class UserRegister {
 	private String familyName;
 
 	public User toUserInternal(PasswordEncoder passwordEncoder) {
-		User user = new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL);
-		user.setFamilyName(familyName);
-		user.setGivenName(givenName);
+		User user = new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL, givenName, familyName);
 		return user;
 	}
 	
 	public User toUserGoogle(PasswordEncoder passwordEncoder) {
-		User user = new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE);
-		user.setFamilyName(familyName);
-		user.setGivenName(givenName);
+		User user = new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE, givenName, familyName);
 		return user;		
 	}
 

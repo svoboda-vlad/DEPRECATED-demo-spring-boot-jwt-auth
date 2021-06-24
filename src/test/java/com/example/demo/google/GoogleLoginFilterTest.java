@@ -62,9 +62,7 @@ class GoogleLoginFilterTest {
 		Payload payload = new Payload();
 		payload.setSubject("user3");
 		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);		
-		User user = new User("user3",encoder.encode(""),LoginProvider.GOOGLE);
-		user.setFamilyName("User 3");
-		user.setGivenName("User 3");
+		User user = new User("user3",encoder.encode(""),LoginProvider.GOOGLE, "User 3", "User 3");
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		given(userRepository.findByUsername("user3")).willReturn(Optional.of(user));
 		given(userDetailsService.loadUserByUsername("user3")).willReturn(user);

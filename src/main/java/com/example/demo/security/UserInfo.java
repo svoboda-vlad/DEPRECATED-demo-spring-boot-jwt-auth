@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import java.time.LocalDateTime;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.Data;
@@ -16,10 +17,12 @@ public class UserInfo {
 
 	private String username;
 		
+	@NotNull
     @Size(min = 1, max = 255)
     @NonNull
 	private String givenName;
     
+	@NotNull
     @Size(min = 1, max = 255)
     @NonNull
 	private String familyName;

@@ -50,9 +50,7 @@ class UserControllerTest {
 		
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
-		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL);
-		user.setFamilyName("User");
-		user.setGivenName("User");
+		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
@@ -114,9 +112,7 @@ class UserControllerTest {
 		
 		given(encoder.encode("test123")).willReturn(StringUtils.repeat("A", 60));
 		
-		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL);
-		user.setFamilyName("Test 1");
-		user.setGivenName("Test 1");
+		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL, "Test 1", "Test 1");
 		given(userRepository.findByUsername("test1")).willReturn(Optional.of(user));
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
@@ -133,9 +129,7 @@ class UserControllerTest {
 		
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
-		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL);
-		user.setFamilyName("User");
-		user.setGivenName("User");
+		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
 		
 		UserInfo userInfo = new UserInfo("User X", "User Y");		
 
