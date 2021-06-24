@@ -99,6 +99,14 @@ public class User implements UserDetails {
 	public enum LoginProvider {	
 		INTERNAL,
 		GOOGLE
-	}	
-
+	}
+	
+	public UserInfo toUserInfo() {
+		UserInfo userInfo = new UserInfo(this.getGivenName(), this.getFamilyName());
+		userInfo.setUsername(username);
+		userInfo.setLastLoginDateTime(lastLoginDateTime);
+		userInfo.setPreviousLoginDateTime(previousLoginDateTime);
+		return userInfo;
+	}
+	
 }

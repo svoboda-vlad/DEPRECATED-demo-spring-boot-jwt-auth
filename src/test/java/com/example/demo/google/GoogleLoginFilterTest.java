@@ -22,7 +22,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.demo.security.RegistrationUser;
+import com.example.demo.security.UserRegister;
 import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
 import com.example.demo.security.UserRepository;
@@ -88,8 +88,8 @@ class GoogleLoginFilterTest {
 		payload.set("given_name", "User 3");
 		payload.set("family_name", "User 3");
 		GoogleIdToken idToken = new GoogleIdToken(header, payload, new byte[0], new byte[0]);
-		RegistrationUser registrationUser = new RegistrationUser("user3","","User 3","User 3");
-		User user = registrationUser.toUserGoogle(encoder);
+		UserRegister userRegister = new UserRegister("user3","","User 3","User 3");
+		User user = userRegister.toUserGoogle(encoder);
 		given(googleIdTokenVerifier.verify("abcdef")).willReturn(idToken);
 		when(userRepository.findByUsername("user3"))
 		   .thenReturn(Optional.empty())

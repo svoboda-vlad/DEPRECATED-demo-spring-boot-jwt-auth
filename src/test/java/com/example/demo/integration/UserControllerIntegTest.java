@@ -1,6 +1,7 @@
 package com.example.demo.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,7 +24,7 @@ import com.example.demo.security.UserRepository;
 @AutoConfigureMockMvc
 @Transactional
 //@WithMockUser - not needed
-class CurrentUserControllerIntegTest {
+class UserControllerIntegTest {
 
 	@Autowired
 	private MockMvc mvc;
@@ -47,7 +48,7 @@ class CurrentUserControllerIntegTest {
 	}	
 
 	@Test
-	void testGetCurrentUSerOk200() throws Exception {
+	void testGetCurrentUserOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null,\"givenName\":\"User 321\",\"familyName\":\"User 321\"}";
@@ -78,6 +79,43 @@ class CurrentUserControllerIntegTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));		
 		
+	}
+	
+	@Test
+	void testRegisterUserCreated201() throws Exception {
+		String requestUrl = "/register";
+		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
+		int expectedStatus = 201;
+		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+										
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+	}
+	
+	@Test
+	void testRegisterUserExistsAlreadyBadRequest400() throws Exception {
+		String requestUrl = "/register";
+		String requestJson = "{\"username\": \"user321\", \"password\": \"test123\",\"givenName\": \"User 321\",\"familyName\": \"User 321\"}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+												
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testUpdateUserOk200() throws Exception {
+		String requestUrl = "/update-user";
+		String requestJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
+		int expectedStatus = 200;
+		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+												
+		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader()).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
 	}	
+	
 
 }

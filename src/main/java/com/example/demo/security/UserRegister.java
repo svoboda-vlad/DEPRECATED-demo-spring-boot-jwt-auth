@@ -15,10 +15,10 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 @NoArgsConstructor
-public class RegistrationUser {
+public class UserRegister {
 
 	@NotNull
-	@Size(min = 1, max = 50)
+	@Size(min = 1, max = 255)
 	@NonNull
 	private String username;
 	
@@ -35,7 +35,7 @@ public class RegistrationUser {
     @NotNull
     @Size(min = 1, max = 255)
     @NonNull
-	private String familyName;	
+	private String familyName;
 
 	public User toUserInternal(PasswordEncoder passwordEncoder) {
 		User user = new User(username, passwordEncoder.encode(password), LoginProvider.INTERNAL);
