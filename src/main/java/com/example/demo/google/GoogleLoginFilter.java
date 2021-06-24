@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.demo.security.AuthenticationService;
-import com.example.demo.security.RegistrationUser;
+import com.example.demo.security.UserRegister;
 import com.example.demo.security.User;
 import com.example.demo.security.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,8 +66,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 				if (userRepository.findByUsername(username).isEmpty()) {
 					String familyName = (String) payload.get("family_name");
 					String givenName = (String) payload.get("given_name");					
-					RegistrationUser user = new RegistrationUser(username, "", givenName, familyName);
-					userRepository.save(user.toUserGoogle(encoder));
+					UserRegister userRegister = new UserRegister(username, "", givenName, familyName);
+					userRepository.save(userRegister.toUserGoogle(encoder));
 				}
 			}
 		} catch (Exception e) {

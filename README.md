@@ -40,8 +40,8 @@ Response:
 unrestricted:
 - POST "/login" (LoginFilter)
 - POST "/google-login" (GoogleLoginFilter)
-- POST "/register" (RegistrationController)
-- GET "/current-user" (CurrentUserController)
+- POST "/register" (UserController)
+- GET "/current-user" (UserController)
 
 unrestricted, but not REST API:
 - GET "/h2-console/**"
@@ -53,6 +53,7 @@ restricted:
 - GET + POST "/exchange-rate" (ExchangeRateController)
 - GET "/exchange-rate/currency-code/1" (ExchangeRateController)
 - GET "/exchange-rate/2021-04-15" (ExchangeRateController)
+- POST "/update-user" (UserController)
 
 Swagger / OpenAPI
 
@@ -82,12 +83,12 @@ User - id (long), username (String, min = 1, max = 255), password (String, min =
 - no endpoint
 - parsed from endpoint POST "/login"
 
-CurrentUser - username (String), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime), givenName (String), familyName (String)
-- GET: {"username": "user1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","givenName": "User 1","familyName": "User 1"}
-- returned from endpoint "/current-user"
+UserInfo - username (String, min = 1, max = 255), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime), givenName (String, min = 1, max = 255), familyName (String, min = 1, max = 255)
+- GET "/current-user": {"username": "user1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","givenName": "User 1","familyName": "User 1"}
+- POST "/update-user": {"username": "user1","givenName": "User 1","familyName": "User 1"}
 
-RegistrationUser - username (String, min = 1, max = 50), password (String, min = 4, max = 100)
-- POST: {"username": "test","password": "test123", "givenName": "Test", "familyName": "Test"}
+UserRegister - username (String, min = 1, max = 255), password (String, min = 4, max = 100)
+- POST "/register": {"username": "test","password": "test123", "givenName": "Test", "familyName": "Test"}
 
 GoogleIdTokenEntity - idToken (String, min = 1, max = 2048)
 - no endpoint
@@ -104,13 +105,9 @@ Database tables:
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
 - user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP), login_provider(VARCHAR(255), given_name(VARCHAR(255), family_name(VARCHAR(255))
 
-CommandLineRunner - profile "dev" - default user: (username: "user1", password "pass123", given name: "User 1" + username: "108564931079495851483", password: "", given name: "Google User 1")
-
 ## Authentication
 
 UserDetailsService + BCryptPasswordEncoder
-- username: "user1", password: "pass123"
-- username: "108564931079495851483", password: ""
 
 Login endpoints:
 
