@@ -54,10 +54,14 @@ public class User implements UserDetails {
     private LocalDateTime lastLoginDateTime;
     private LocalDateTime previousLoginDateTime;
     
+    @NotNull
     @Size(min = 1, max = 255)
+    @NonNull
 	private String givenName;
-    
+
+    @NotNull
     @Size(min = 1, max = 255)
+    @NonNull
 	private String familyName;    
     
 
