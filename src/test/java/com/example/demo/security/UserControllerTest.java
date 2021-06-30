@@ -56,7 +56,7 @@ class UserControllerTest {
 	void testGetCurrentUSerOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User\",\"familyName\":\"User\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
+		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User\",\"familyName\":\"User\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 				
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
@@ -102,7 +102,7 @@ class UserControllerTest {
 		String requestUrl = "/register";
 		String requestJson = "{\"username\":\"test1\",\"password\":\"test123\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\"}";
 		int expectedStatus = 201;
-		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "";		
 		
 		Role role = new Role("ROLE_USER");
 		given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(role));
@@ -118,11 +118,10 @@ class UserControllerTest {
 		
 		given(userRepository.findByUsername("test1")).willReturn(Optional.empty());
 		given(userRepository.save(user)).willReturn(user);
-		given(userRepository.findById(0L)).willReturn(Optional.of(userWithRoles));
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
-				.andExpect(content().json(expectedJson));
+				.andExpect(content().string(expectedJson));
 		
 		verify(userRolesRepository, times(1)).save(new UserRoles(user,role));
 	}
@@ -149,11 +148,15 @@ class UserControllerTest {
 		String requestUrl = "/update-user";
 		String requestJson = "{\"username\":\"user\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
 		
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
+		List<UserRoles> userRoles = new ArrayList<UserRoles>();
+		Role role = new Role("ROLE_USER");
+		userRoles.add(new UserRoles(user, role));
+		user.setUserRoles(userRoles);
 		
 		UserInfo userInfo = new UserInfo("User X", "User Y");		
 

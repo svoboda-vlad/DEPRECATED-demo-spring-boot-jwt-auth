@@ -84,7 +84,7 @@ User - id (long), username (String, min = 1, max = 255), password (String, min =
 - parsed from endpoint POST "/login"
 
 UserInfo - username (String, min = 1, max = 255), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime), givenName (String, min = 1, max = 255), familyName (String, min = 1, max = 255)
-- GET "/current-user": {"username": "user1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","givenName": "User 1","familyName": "User 1"}
+- GET "/current-user": {"username": "user1","givenName": "User 1","familyName": "User 1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","userRoles":[{"id":1,"role":{"id":1,"name":"ROLE_USER","authority":"ROLE_USER"}}]}
 - POST "/update-user": {"username": "user1","givenName": "User 1","familyName": "User 1"}
 
 UserRegister - username (String, min = 1, max = 255), password (String, min = 4, max = 100)
@@ -93,6 +93,12 @@ UserRegister - username (String, min = 1, max = 255), password (String, min = 4,
 GoogleIdTokenEntity - idToken (String, min = 1, max = 2048)
 - no endpoint
 - parsed from endpoint POST "/google-login"
+
+Role
+- no endpoint - id (long), name (String, min = 1, max = 255)
+
+UserRoles
+- no endpoint - id (long), user (User), role (Role)
 
 ## Database
 
@@ -104,6 +110,8 @@ Database tables:
 - currency_code - id (int PRIMARY KEY), currency_code (VARCHAR(255) NOT NULL UNIQUE), country (VARCHAR(255) NOT NULL), rate_qty (INT NOT NULL)
 - exchange_rate - id (int PRIMARY KEY), rate_date (date NOT NULL), rate (DECIMAL(10,3) NOT NULL), currency_code_id (INT NOT NULL)
 - user - id (int PRIMARY KEY), username (VARCHAR(255) NOT NULL UNIQUE), password (VARCHAR(255) NOT NULL), last_login_date_time (TIMESTAMP), previous_login_date_time (TIMESTAMP), login_provider(VARCHAR(255), given_name(VARCHAR(255), family_name(VARCHAR(255))
+- user_roles - id (int PRIMARY KEY), user_id (int NOT NULL), role_id (int NOT NULL)
+- role - id (int PRIMARY KEY), name (VARCHAR(255) NOT NULL UNIQUE) - default values: "ROLE_USER", "ROLE_ADMIN"
 
 ## Authentication
 
@@ -130,7 +138,7 @@ SessionCreationPolicy.STATELESS
 cURL (WINDOWS + LINUX):
 
 ```
-curl -i http://localhost:8080/register -d "{\"username\": \"test\", \"password\": \"test123\"}" -H "Content-Type: application/json"
+curl -i http://localhost:8080/register -d "{\"username\": \"test\", \"password\": \"test123\", \"givenName\": \"Test\", \"familyName\": \"Test\"}" -H "Content-Type: application/json"
 ```
 
 ## Dependencies

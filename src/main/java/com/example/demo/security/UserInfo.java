@@ -28,12 +28,11 @@ public class UserInfo {
     @Size(min = 1, max = 255)
     @NonNull
 	private String familyName;
-	
-	private List<UserRoles> userRoles = new ArrayList<UserRoles>();
     
     private LocalDateTime lastLoginDateTime;
     private LocalDateTime previousLoginDateTime;
-
+	private List<UserRoles> userRoles = new ArrayList<UserRoles>();
+    
 	public User toUser(User user) {
 		user.setFamilyName(familyName);
 		user.setGivenName(givenName);

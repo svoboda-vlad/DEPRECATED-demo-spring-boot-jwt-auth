@@ -86,7 +86,7 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 				<constraints primaryKey="true" nullable="false" />
 			</column>
 			<column name="name" type="varchar(255)">
-				<constraints unique="true"></constraints>
+				<constraints unique="true" nullable="false"/>
 			</column>
 		</createTable>
 		<createTable tableName="user_roles">

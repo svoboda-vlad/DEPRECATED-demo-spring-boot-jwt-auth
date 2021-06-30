@@ -34,12 +34,12 @@ public class UserController {
 	private static final String USER_ROLE_NAME = "ROLE_USER";
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
-	private final UserRolesRepository userRolesRepository;	
+	private final UserRolesRepository userRolesRepository;
 	private final UserDetailsService userService;
 	private final PasswordEncoder encoder;
     
     @PostMapping(REGISTRATION_URL)
-    public ResponseEntity<UserInfo> registerUser(@Valid @RequestBody UserRegister userRegister) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegister userRegister) {
 		if (userRepository.findByUsername(userRegister.getUsername()).isPresent())
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		
@@ -47,13 +47,12 @@ public class UserController {
 		
 		if (optRole.isEmpty()) {
 			log.info("Role {} not found in database.", USER_ROLE_NAME);
-			return new ResponseEntity<UserInfo>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 		} else {
 			// service - transactional?
 			User user = userRepository.save(userRegister.toUserInternal(encoder));
 			userRolesRepository.save(new UserRoles(user, optRole.get()));
-			Optional<User> optUser = userRepository.findById(user.getId());
-			return ResponseEntity.status(HttpStatus.CREATED).body(optUser.get().toUserInfo());
+			return ResponseEntity.status(HttpStatus.CREATED).build();
 		}
     }
 

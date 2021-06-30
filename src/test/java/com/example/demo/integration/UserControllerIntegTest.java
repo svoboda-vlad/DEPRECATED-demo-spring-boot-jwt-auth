@@ -63,7 +63,7 @@ class UserControllerIntegTest {
 	void testGetCurrentUserOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
+		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -98,11 +98,11 @@ class UserControllerIntegTest {
 		String requestUrl = "/register";
 		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 201;
-		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "";
 		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
-				.andExpect(content().json(expectedJson));
+				.andExpect(content().string(expectedJson));
 	}
 	
 	@Test
@@ -122,7 +122,7 @@ class UserControllerIntegTest {
 		String requestUrl = "/update-user";
 		String requestJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 												
 		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader()).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
