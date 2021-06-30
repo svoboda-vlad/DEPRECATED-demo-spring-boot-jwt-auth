@@ -56,11 +56,15 @@ class UserControllerTest {
 	void testGetCurrentUSerOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User\",\"familyName\": \"User\"}";
-		
+		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User\",\"familyName\":\"User\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
+				
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
+		List<UserRoles> userRoles = new ArrayList<UserRoles>();
+		Role role = new Role("ROLE_USER");
+		userRoles.add(new UserRoles(user, role));
+		user.setUserRoles(userRoles);
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
@@ -98,7 +102,7 @@ class UserControllerTest {
 		String requestUrl = "/register";
 		String requestJson = "{\"username\":\"test1\",\"password\":\"test123\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\"}";
 		int expectedStatus = 201;
-		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
 		Role role = new Role("ROLE_USER");
 		given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(role));

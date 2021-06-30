@@ -5,6 +5,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.Role;
+import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
 import com.example.demo.security.UserRepository;
+import com.example.demo.security.UserRoles;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,6 +42,9 @@ class UserControllerIntegTest {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private RoleRepository roleRepository;	
+	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user321");
 	}
@@ -42,6 +52,10 @@ class UserControllerIntegTest {
 	@BeforeEach
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
+		List<UserRoles> userRoles = new ArrayList<UserRoles>();
+		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
+		userRoles.add(new UserRoles(user, optRole.get()));
+		user.setUserRoles(userRoles);
 		userRepository.save(user);
 	}	
 
@@ -49,7 +63,7 @@ class UserControllerIntegTest {
 	void testGetCurrentUserOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null,\"givenName\":\"User 321\",\"familyName\":\"User 321\"}";
+		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -84,7 +98,7 @@ class UserControllerIntegTest {
 		String requestUrl = "/register";
 		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 201;
-		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
