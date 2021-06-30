@@ -1,6 +1,8 @@
 package com.example.demo.security;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -28,12 +30,13 @@ public class UserInfo {
 	private String familyName;
     
     private LocalDateTime lastLoginDateTime;
-    private LocalDateTime previousLoginDateTime;    
-
+    private LocalDateTime previousLoginDateTime;
+	private List<UserRoles> userRoles = new ArrayList<UserRoles>();
+    
 	public User toUser(User user) {
 		user.setFamilyName(familyName);
 		user.setGivenName(givenName);
 		return user;
-	}    
+	}
     
 }

@@ -77,7 +77,42 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 	<changeSet id="20210621093300" author="svoboda-vlad">
 		<addColumn tableName="user">
 			<column name="family_name" type="varchar(255)" />
-			<column name="given_name" type="varchar(255)" />			
+			<column name="given_name" type="varchar(255)" />
 		</addColumn>
-	</changeSet>	
+	</changeSet>
+	<changeSet id="20210629123200" author="svoboda-vlad">
+		<createTable tableName="role">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="name" type="varchar(255)">
+				<constraints unique="true" nullable="false"/>
+			</column>
+		</createTable>
+		<createTable tableName="user_roles">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="user_id" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="role_id" type="int">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		<addForeignKeyConstraint
+			baseColumnNames="user_id" baseTableName="user_roles"
+			constraintName="fk_user_roles_user_id" referencedColumnNames="id"
+			referencedTableName="user" />
+		<addForeignKeyConstraint
+			baseColumnNames="role_id" baseTableName="user_roles"
+			constraintName="fk_user_roles_role_id" referencedColumnNames="id"
+			referencedTableName="role" />
+		<insert tableName="role">
+			<column name="name" value="ROLE_USER" />
+		</insert>
+		<insert tableName="role">
+			<column name="name" value="ROLE_ADMIN" />
+		</insert>
+	</changeSet>
 </databaseChangeLog>

@@ -1,15 +1,21 @@
 package com.example.demo.security;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -62,12 +68,21 @@ public class User implements UserDetails {
     @NotNull
     @Size(min = 1, max = 255)
     @NonNull
-	private String familyName;    
+	private String familyName;
     
+    // CascadeType.ALL - enable removing the relation (user_roles.user_id)
+    // orphanRemoval - enable removing the related entity (user_roles)
+    // fetch - changed to eager
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<UserRoles> userRoles = new ArrayList<UserRoles>();
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+        Set<GrantedAuthority> roles = new HashSet<GrantedAuthority>();
+        for (UserRoles role : this.userRoles) {
+        	roles.add(new SimpleGrantedAuthority(role.getRole().getName()));
+        }
+        return roles;
 	}
 
 	@Override
@@ -110,6 +125,7 @@ public class User implements UserDetails {
 		userInfo.setUsername(username);
 		userInfo.setLastLoginDateTime(lastLoginDateTime);
 		userInfo.setPreviousLoginDateTime(previousLoginDateTime);
+		userInfo.setUserRoles(userRoles);
 		return userInfo;
 	}
 	
