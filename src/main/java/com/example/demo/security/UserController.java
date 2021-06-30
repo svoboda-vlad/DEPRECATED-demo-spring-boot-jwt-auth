@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.google.GoogleLoginFilter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -56,6 +58,7 @@ public class UserController {
 		}
     }
 
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
 	@GetMapping(CURRENT_USER_URL)
 	public ResponseEntity<UserInfo> getUserInfo() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -70,6 +73,7 @@ public class UserController {
 		return ResponseEntity.ok(user.toUserInfo());
 	}
 	
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     @PostMapping(UPDATE_USER_URL)
     public ResponseEntity<UserInfo> updateUser(@Valid @RequestBody UserInfo userInfo) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
