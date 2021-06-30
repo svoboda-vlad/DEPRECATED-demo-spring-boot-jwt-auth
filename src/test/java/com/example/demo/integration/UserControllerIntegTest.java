@@ -34,7 +34,7 @@ class UserControllerIntegTest {
 	
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user321");
 	}
@@ -84,8 +84,8 @@ class UserControllerIntegTest {
 		String requestUrl = "/register";
 		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 201;
-		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
-										
+		String expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));

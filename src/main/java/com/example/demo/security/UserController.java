@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,16 +18,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.google.GoogleLoginFilter;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 	
+	private final Logger log = LoggerFactory.getLogger(GoogleLoginFilter.class);
+	
 	private static final String REGISTRATION_URL = "/register";
 	private static final String CURRENT_USER_URL = "/current-user";
 	private static final String UPDATE_USER_URL = "/update-user";
+	private static final String USER_ROLE_NAME = "ROLE_USER";
 	private final UserRepository userRepository;
+	private final RoleRepository roleRepository;
+	private final UserRolesRepository userRolesRepository;	
 	private final UserDetailsService userService;
 	private final PasswordEncoder encoder;
     
@@ -34,8 +43,18 @@ public class UserController {
 		if (userRepository.findByUsername(userRegister.getUsername()).isPresent())
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		
-		User user = userRepository.save(userRegister.toUserInternal(encoder));    	
-		return ResponseEntity.status(HttpStatus.CREATED).body(user.toUserInfo());
+		Optional<Role> optRole = roleRepository.findByName(USER_ROLE_NAME);
+		
+		if (optRole.isEmpty()) {
+			log.info("Role {} not found in database.", USER_ROLE_NAME);
+			return new ResponseEntity<UserInfo>(HttpStatus.BAD_REQUEST);
+		} else {
+			// service - transactional?
+			User user = userRepository.save(userRegister.toUserInternal(encoder));
+			userRolesRepository.save(new UserRoles(user, optRole.get()));
+			Optional<User> optUser = userRepository.findById(user.getId());
+			return ResponseEntity.status(HttpStatus.CREATED).body(optUser.get().toUserInfo());
+		}
     }
 
 	@GetMapping(CURRENT_USER_URL)
