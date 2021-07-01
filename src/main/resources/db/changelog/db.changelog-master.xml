@@ -90,9 +90,6 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 			</column>
 		</createTable>
 		<createTable tableName="user_roles">
-			<column name="id" type="int" autoIncrement="true">
-				<constraints primaryKey="true" nullable="false" />
-			</column>
 			<column name="user_id" type="int">
 				<constraints nullable="false" />
 			</column>
@@ -100,6 +97,7 @@ http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibas
 				<constraints nullable="false" />
 			</column>
 		</createTable>
+		<addPrimaryKey columnNames="user_id, role_id" constraintName="pk_user_roles" tableName="user_roles"/>
 		<addForeignKeyConstraint
 			baseColumnNames="user_id" baseTableName="user_roles"
 			constraintName="fk_user_roles_user_id" referencedColumnNames="id"
