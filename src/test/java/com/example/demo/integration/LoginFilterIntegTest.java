@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.security.User;
+import com.example.demo.security.UserRepository;
 import com.example.demo.security.User.LoginProvider;
 
 @SpringBootTest

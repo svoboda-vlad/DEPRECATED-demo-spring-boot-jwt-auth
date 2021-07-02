@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -51,9 +52,12 @@ public class UserController {
 			log.info("Role {} not found in database.", USER_ROLE_NAME);
 			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 		} else {
-			// service - transactional?
 			User user = userRepository.save(userRegister.toUserInternal(encoder));
-			userRolesRepository.save(new UserRoles(user, optRole.get()));
+			UserRoles userRoles = new UserRoles(user, optRole.get());
+			userRoles = userRolesRepository.save(userRoles);
+			List<UserRoles> roles = user.getUserRoles();
+			roles.add(userRoles);
+			user.setUserRoles(roles);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		}
     }
