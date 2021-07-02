@@ -57,16 +57,4 @@ public class CurrencyCode implements Serializable {
     @JsonIgnore // to avoid infinite recursion
 	private List<ExchangeRate> exchangeRates = new ArrayList<ExchangeRate>();
 
-	public void addExchangeRate(ExchangeRate exchangeRate) {
-		exchangeRates.add(exchangeRate);
-		// @NotNull applied on currencyCode
-		// exchangeRate.setCurrencyCode(this);
-	}
-	
-	public void removeExchangeRate(ExchangeRate exchangeRate) {
-		exchangeRates.remove(exchangeRate);
-		// @NotNull applied on currencyCode
-		// exchangeRate.setCurrencyCode(null);
-	}
-	
 }

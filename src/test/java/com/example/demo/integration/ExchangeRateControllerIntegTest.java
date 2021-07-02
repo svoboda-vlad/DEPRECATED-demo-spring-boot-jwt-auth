@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.exchangerate.CurrencyCode;
 import com.example.demo.exchangerate.CurrencyCodeRepository;
 import com.example.demo.exchangerate.ExchangeRate;
+import com.example.demo.exchangerate.ExchangeRateRepository;
 import com.example.demo.security.AuthenticationService;
 
 @SpringBootTest
@@ -37,6 +38,9 @@ class ExchangeRateControllerIntegTest {
 	@Autowired
 	private CurrencyCodeRepository currencyCodeRepository;
 	
+	@Autowired
+	private ExchangeRateRepository exchangeRateRepository;	
+	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
 	}
@@ -45,17 +49,13 @@ class ExchangeRateControllerIntegTest {
 	void initData() {
 		CurrencyCode currencyCode1 = new CurrencyCode("EUR", "EMU", 1);
 		CurrencyCode currencyCode2 = new CurrencyCode("USD", "USA", 1);
-		currencyCode1.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1)
-				);
-		currencyCode1.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 16), new BigDecimal("25.840"), currencyCode1)
-				);
-		currencyCode2.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
-				);
-		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
+		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));		
 		currencyCodeRepository.saveAll(currencyCodes);
+		ExchangeRate exchangeRate1 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1);
+		ExchangeRate exchangeRate2 = new ExchangeRate(LocalDate.of(2021, 4, 16), new BigDecimal("25.840"), currencyCode1);		
+		ExchangeRate exchangeRate3 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2);
+		List<ExchangeRate> exchangeRates = new ArrayList<ExchangeRate>(Arrays.asList(exchangeRate1, exchangeRate2, exchangeRate3));
+		exchangeRateRepository.saveAll(exchangeRates);		
 	}
 
 	@Test
