@@ -36,6 +36,7 @@ public class UserController {
 	private static final String USER_ROLE_NAME = "ROLE_USER";
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
+	private final UserRolesRepository userRolesRepository;	
 	private final UserDetailsService userService;
 	private final PasswordEncoder encoder;
     
@@ -51,8 +52,10 @@ public class UserController {
 			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 		} else {
 			User user = userRegister.toUserInternal(encoder);
-			user.addUserRoles(new UserRoles(user, optRole.get()));
-			userRepository.save(user);
+			user = userRepository.save(user);			
+			UserRoles userRoles = new UserRoles(user, optRole.get());
+			userRoles = userRolesRepository.save(userRoles);
+			user.addUserRoles(userRoles);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		}
     }

@@ -1,9 +1,6 @@
 package com.example.demo.security;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,6 +40,9 @@ class UserControllerTest {
 	
 	@MockBean
 	private RoleRepository roleRepository;
+	
+	@MockBean
+	private UserRolesRepository userRolesRepository;	
 	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
@@ -104,16 +104,18 @@ class UserControllerTest {
 		given(encoder.encode("test123")).willReturn(StringUtils.repeat("A", 60));
 		
 		UserRegister userRegister = new UserRegister("test1", "test123","Test 1", "Test 1");
+		User user = userRegister.toUserInternal(encoder);
 		User userWithRoles = userRegister.toUserInternal(encoder);
-		userWithRoles.addUserRoles(new UserRoles(userWithRoles, role));
+		UserRoles userRoles = new UserRoles(userWithRoles, role);
+		userWithRoles.addUserRoles(userRoles);
 		
 		given(userRepository.findByUsername("test1")).willReturn(Optional.empty());
+		given(userRepository.save(user)).willReturn(user);
+		given(userRolesRepository.save(userRoles)).willReturn(userRoles);
 		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
-		
-		verify(userRepository, times(1)).save(any(User.class));
 	}
 	
 	@Test
