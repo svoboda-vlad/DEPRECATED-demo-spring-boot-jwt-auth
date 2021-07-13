@@ -75,6 +75,19 @@ public class User implements UserDetails {
     // fetch - changed to eager
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<UserRoles> userRoles = new ArrayList<UserRoles>();
+    
+    
+	public void addRole(Role role) {
+		UserRoles roles = new UserRoles(this, role);
+		userRoles.add(roles);
+	}
+	
+	public void removeRole(Role role) {		
+		UserRoles roles = new UserRoles(this, role);
+		userRoles.remove(roles);
+		roles.setUser(null);
+		roles.setRole(null);
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

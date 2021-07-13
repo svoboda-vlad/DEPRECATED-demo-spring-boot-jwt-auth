@@ -52,7 +52,7 @@ class UserControllerTest {
 	void testGetCurrentUSerOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User\",\"familyName\":\"User\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User\",\"familyName\":\"User\",\"userRoles\":[{\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 				
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
@@ -138,7 +138,7 @@ class UserControllerTest {
 		String requestUrl = "/update-user";
 		String requestJson = "{\"username\":\"user\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"id\":0,\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
+		String expectedJson = "{\"username\":\"user\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
 		
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
