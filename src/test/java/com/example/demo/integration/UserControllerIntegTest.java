@@ -5,8 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,10 +50,8 @@ class UserControllerIntegTest {
 	@BeforeEach
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
-		List<UserRoles> userRoles = new ArrayList<UserRoles>();
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
-		userRoles.add(new UserRoles(user, optRole.get()));
-		user.setUserRoles(userRoles);
+		user.addUserRoles(new UserRoles(user, optRole.get()));
 		userRepository.save(user);
 	}	
 

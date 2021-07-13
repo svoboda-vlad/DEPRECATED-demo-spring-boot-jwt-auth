@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -8,8 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +44,6 @@ class UserControllerTest {
 	@MockBean
 	private RoleRepository roleRepository;
 	
-	@MockBean
-	private UserRolesRepository userRolesRepository;
-	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
 	}
@@ -61,10 +57,8 @@ class UserControllerTest {
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
-		List<UserRoles> userRoles = new ArrayList<UserRoles>();
 		Role role = new Role("ROLE_USER");
-		userRoles.add(new UserRoles(user, role));
-		user.setUserRoles(userRoles);
+		user.addUserRoles(new UserRoles(user, role));
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
@@ -102,28 +96,24 @@ class UserControllerTest {
 		String requestUrl = "/register";
 		String requestJson = "{\"username\":\"test1\",\"password\":\"test123\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\"}";
 		int expectedStatus = 201;
-		String expectedJson = "";		
+		String expectedJson = "";
 		
 		Role role = new Role("ROLE_USER");
 		given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(role));
 		
 		given(encoder.encode("test123")).willReturn(StringUtils.repeat("A", 60));
 		
-		UserRegister userRegister = new UserRegister("test1", "test123","Test 1", "Test 1");		
-		User user = userRegister.toUserInternal(encoder);
+		UserRegister userRegister = new UserRegister("test1", "test123","Test 1", "Test 1");
 		User userWithRoles = userRegister.toUserInternal(encoder);
-		List<UserRoles> userRoles = new ArrayList<UserRoles>();
-		userRoles.add(new UserRoles(userWithRoles, role));
-		userWithRoles.setUserRoles(userRoles);
+		userWithRoles.addUserRoles(new UserRoles(userWithRoles, role));
 		
 		given(userRepository.findByUsername("test1")).willReturn(Optional.empty());
-		given(userRepository.save(user)).willReturn(user);
-										
+		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 		
-		verify(userRolesRepository, times(1)).save(new UserRoles(user,role));
+		verify(userRepository, times(1)).save(any(User.class));
 	}
 	
 	@Test
@@ -153,10 +143,8 @@ class UserControllerTest {
 		given(encoder.encode("password")).willReturn(StringUtils.repeat("A", 60));
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
-		List<UserRoles> userRoles = new ArrayList<UserRoles>();
 		Role role = new Role("ROLE_USER");
-		userRoles.add(new UserRoles(user, role));
-		user.setUserRoles(userRoles);
+		user.addUserRoles(new UserRoles(user, role));
 		
 		UserInfo userInfo = new UserInfo("User X", "User Y");		
 

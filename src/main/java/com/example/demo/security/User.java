@@ -129,4 +129,10 @@ public class User implements UserDetails {
 		return userInfo;
 	}
 	
+	public void addUserRoles(UserRoles userRoles) {
+		this.userRoles.add(userRoles);
+		// @NotNull applied on user
+		// userRoles.setUser(this);
+	}	
+	
 }

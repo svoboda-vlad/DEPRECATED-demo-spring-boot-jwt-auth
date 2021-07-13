@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -37,7 +36,6 @@ public class UserController {
 	private static final String USER_ROLE_NAME = "ROLE_USER";
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
-	private final UserRolesRepository userRolesRepository;
 	private final UserDetailsService userService;
 	private final PasswordEncoder encoder;
     
@@ -52,12 +50,9 @@ public class UserController {
 			log.info("Role {} not found in database.", USER_ROLE_NAME);
 			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 		} else {
-			User user = userRepository.save(userRegister.toUserInternal(encoder));
-			UserRoles userRoles = new UserRoles(user, optRole.get());
-			userRoles = userRolesRepository.save(userRoles);
-			List<UserRoles> roles = user.getUserRoles();
-			roles.add(userRoles);
-			user.setUserRoles(roles);
+			User user = userRegister.toUserInternal(encoder);
+			user.addUserRoles(new UserRoles(user, optRole.get()));
+			userRepository.save(user);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		}
     }

@@ -2,9 +2,7 @@ package com.example.demo.google;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -31,7 +29,6 @@ import com.example.demo.security.User;
 import com.example.demo.security.UserRegister;
 import com.example.demo.security.UserRepository;
 import com.example.demo.security.UserRoles;
-import com.example.demo.security.UserRolesRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -52,10 +49,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 	
 	@Autowired
 	private RoleRepository roleRepository;
-	
-	@Autowired
-	private UserRolesRepository userRolesRepository;
-	
+
 	private static final String USER_ROLE_NAME = "ROLE_USER";	
 
 	public GoogleLoginFilter(AuthenticationManager authManager) {
@@ -88,12 +82,9 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 						String familyName = (String) payload.get("family_name");
 						String givenName = (String) payload.get("given_name");
 						UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
-						User user = userRepository.save(userRegister.toUserGoogle(encoder));
-						UserRoles userRoles = new UserRoles(user, optRole.get());
-						userRoles = userRolesRepository.save(userRoles);						
-						List<UserRoles> roles = user.getUserRoles();
-						roles.add(userRoles);
-						user.setUserRoles(roles);
+						User user = userRegister.toUserGoogle(encoder);
+						user.addUserRoles(new UserRoles(user, optRole.get()));
+						userRepository.save(user);
 					}
 				}
 			}
