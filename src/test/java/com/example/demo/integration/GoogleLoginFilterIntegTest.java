@@ -21,9 +21,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.Role;
+import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
 import com.example.demo.security.UserRepository;
+import com.example.demo.security.UserRoles;
+import com.example.demo.security.UserRolesRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -44,6 +48,12 @@ class GoogleLoginFilterIntegTest {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private RoleRepository roleRepository;	
+
+	@Autowired
+	private UserRolesRepository userRolesRepository;
+	
 	@MockBean
 	private GoogleIdTokenVerifier googleIdTokenVerifier;
 	
@@ -55,6 +65,10 @@ class GoogleLoginFilterIntegTest {
 	void initData() {
 		User user = new User("user321", encoder.encode("user321"),LoginProvider.GOOGLE, "User 321", "User 321");
 		userRepository.save(user);
+		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
+		UserRoles userRoles = new UserRoles(user, optRole.get());
+		userRoles = userRolesRepository.save(userRoles);
+		user.addUserRoles(userRoles);	
 	}
 
 	@Test
