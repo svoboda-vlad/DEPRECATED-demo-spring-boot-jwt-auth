@@ -36,7 +36,7 @@ class CurrencyCodeControllerIntegTest {
 	
 	@Autowired
 	private CurrencyCodeRepository currencyCodeRepository;
-		
+	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
 	}
@@ -45,14 +45,12 @@ class CurrencyCodeControllerIntegTest {
 	void initData() {
 		CurrencyCode currencyCode1 = new CurrencyCode("EUR", "EMU", 1);
 		CurrencyCode currencyCode2 = new CurrencyCode("USD", "USA", 1);
-		currencyCode1.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1)
-				);
-		currencyCode2.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
-				);
-		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
-		currencyCodeRepository.saveAll(currencyCodes);		
+		ExchangeRate exchangeRate1 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1);
+		ExchangeRate exchangeRate2 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2);
+		currencyCode1.addExchangeRate(exchangeRate1);
+		currencyCode2.addExchangeRate(exchangeRate2);
+		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));		
+		currencyCodeRepository.saveAll(currencyCodes);
 	}
 
 	@Test

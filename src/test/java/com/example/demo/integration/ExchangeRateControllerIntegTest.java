@@ -45,15 +45,12 @@ class ExchangeRateControllerIntegTest {
 	void initData() {
 		CurrencyCode currencyCode1 = new CurrencyCode("EUR", "EMU", 1);
 		CurrencyCode currencyCode2 = new CurrencyCode("USD", "USA", 1);
-		currencyCode1.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1)
-				);
-		currencyCode1.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 16), new BigDecimal("25.840"), currencyCode1)
-				);
-		currencyCode2.addExchangeRate(
-				new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2)
-				);
+		ExchangeRate exchangeRate1 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1);
+		ExchangeRate exchangeRate2 = new ExchangeRate(LocalDate.of(2021, 4, 16), new BigDecimal("25.840"), currencyCode1);		
+		ExchangeRate exchangeRate3 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("21.669"), currencyCode2);
+		currencyCode1.addExchangeRate(exchangeRate1);
+		currencyCode1.addExchangeRate(exchangeRate2);
+		currencyCode2.addExchangeRate(exchangeRate3);				
 		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
 		currencyCodeRepository.saveAll(currencyCodes);
 	}

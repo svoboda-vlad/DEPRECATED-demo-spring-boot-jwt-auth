@@ -1,6 +1,7 @@
 package com.example.demo.google;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -22,9 +23,12 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.demo.security.AuthenticationService;
-import com.example.demo.security.UserRegister;
+import com.example.demo.security.Role;
+import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
+import com.example.demo.security.UserRegister;
 import com.example.demo.security.UserRepository;
+import com.example.demo.security.UserRoles;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -42,6 +46,11 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private RoleRepository roleRepository;
+
+	private static final String USER_ROLE_NAME = "ROLE_USER";	
 
 	public GoogleLoginFilter(AuthenticationManager authManager) {
 		super(new AntPathRequestMatcher("/google-login", "POST"));
@@ -64,18 +73,27 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 				username = payload.getSubject();			
 
 				if (userRepository.findByUsername(username).isEmpty()) {
-					String familyName = (String) payload.get("family_name");
-					String givenName = (String) payload.get("given_name");					
-					UserRegister userRegister = new UserRegister(username, "", givenName, familyName);
-					userRepository.save(userRegister.toUserGoogle(encoder));
+					Optional<Role> optRole = roleRepository.findByName(USER_ROLE_NAME);
+
+					if (optRole.isEmpty()) {
+						log.info("Role {} not found in database.", USER_ROLE_NAME);
+						throw new RuntimeException("Role not found.");
+					} else {
+						String familyName = (String) payload.get("family_name");
+						String givenName = (String) payload.get("given_name");
+						UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
+						User user = userRegister.toUserGoogle(encoder);
+						user.addUserRoles(new UserRoles(user, optRole.get()));
+						userRepository.save(user);
+					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (GeneralSecurityException | IOException e) {
 			log.info("Google ID token verification failed");
 			throw new BadCredentialsException("");
 		}
 		return getAuthenticationManager()
-				.authenticate(new UsernamePasswordAuthenticationToken(username, "", Collections.emptyList()));
+				.authenticate(new UsernamePasswordAuthenticationToken(username, username, Collections.emptyList()));
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public class UserRegister {
 	
 	public User toUserGoogle(PasswordEncoder passwordEncoder) {
 		User user = new User(username, passwordEncoder.encode(password), LoginProvider.GOOGLE, givenName, familyName);
-		return user;		
+		return user;
 	}
 
 }

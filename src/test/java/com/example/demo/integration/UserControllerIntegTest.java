@@ -5,8 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,17 +43,15 @@ class UserControllerIntegTest {
 	@Autowired
 	private RoleRepository roleRepository;	
 	
-	private String generateAuthorizationHeader() {
-		return "Bearer " + AuthenticationService.generateToken("user321");
-	}
+	private String generateAuthorizationHeader(String username) {
+		return "Bearer " + AuthenticationService.generateToken(username);
+	}	
 	
 	@BeforeEach
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
-		List<UserRoles> userRoles = new ArrayList<UserRoles>();
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
-		userRoles.add(new UserRoles(user, optRole.get()));
-		user.setUserRoles(userRoles);
+		user.addUserRoles(new UserRoles(user, optRole.get()));
 		userRepository.save(user);
 	}	
 
@@ -65,7 +61,7 @@ class UserControllerIntegTest {
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("user321")).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -87,7 +83,7 @@ class UserControllerIntegTest {
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader() + "xxx").accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("user321") + "xxx").accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));		
 		
@@ -103,6 +99,15 @@ class UserControllerIntegTest {
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
+		
+		requestUrl = "/current-user";
+		expectedStatus = 200;
+		expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("test1"))
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+		
 	}
 	
 	@Test
@@ -124,7 +129,7 @@ class UserControllerIntegTest {
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 												
-		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader()).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("user321")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}	
