@@ -61,6 +61,12 @@ public class CurrencyCode implements Serializable {
 		exchangeRates.add(exchangeRate);
 		// @NotNull applied on currencyCode
 		// exchangeRate.setCurrencyCode(this);
-	}    
+	}
+	
+	public void removeExchangeRate(ExchangeRate exchangeRate) {
+		exchangeRates.remove(exchangeRate);
+		// @NotNull applied on currencyCode
+		// exchangeRate.setCurrencyCode(null);
+	}	
     
 }

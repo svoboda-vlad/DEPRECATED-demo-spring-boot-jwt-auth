@@ -26,8 +26,6 @@ import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
 import com.example.demo.security.UserRepository;
-import com.example.demo.security.UserRoles;
-import com.example.demo.security.UserRolesRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -49,11 +47,8 @@ class GoogleLoginFilterIntegTest {
 	private UserRepository userRepository;
 	
 	@Autowired
-	private RoleRepository roleRepository;	
-
-	@Autowired
-	private UserRolesRepository userRolesRepository;
-	
+	private RoleRepository roleRepository;
+		
 	@MockBean
 	private GoogleIdTokenVerifier googleIdTokenVerifier;
 	
@@ -64,11 +59,9 @@ class GoogleLoginFilterIntegTest {
 	@BeforeEach
 	void initData() {
 		User user = new User("user321", encoder.encode("user321"),LoginProvider.GOOGLE, "User 321", "User 321");
-		userRepository.save(user);
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
-		UserRoles userRoles = new UserRoles(user, optRole.get());
-		userRoles = userRolesRepository.save(userRoles);
-		user.addUserRoles(userRoles);	
+		user.addRole(optRole.get());
+		userRepository.save(user);
 	}
 
 	@Test

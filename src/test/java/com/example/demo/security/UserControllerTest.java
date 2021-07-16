@@ -1,6 +1,8 @@
 package com.example.demo.security;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -15,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,19 +31,13 @@ class UserControllerTest {
 	private MockMvc mvc;
 	
 	@MockBean
-	private PasswordEncoder encoder;	
-	
-	@MockBean
-	private UserDetailsService userService;
+	private PasswordEncoder encoder;
 	
 	@MockBean
 	private UserRepository userRepository;
 	
 	@MockBean
-	private RoleRepository roleRepository;
-	
-	@MockBean
-	private UserRolesRepository userRolesRepository;	
+	private UserService userService;
 	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
@@ -58,9 +53,8 @@ class UserControllerTest {
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
 		Role role = new Role("ROLE_USER");
-		user.addUserRoles(new UserRoles(user, role));
+		user.addRole(role);
 		
-		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
@@ -98,24 +92,18 @@ class UserControllerTest {
 		int expectedStatus = 201;
 		String expectedJson = "";
 		
-		Role role = new Role("ROLE_USER");
-		given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(role));
-		
 		given(encoder.encode("test123")).willReturn(StringUtils.repeat("A", 60));
 		
 		UserRegister userRegister = new UserRegister("test1", "test123","Test 1", "Test 1");
 		User user = userRegister.toUserInternal(encoder);
-		User userWithRoles = userRegister.toUserInternal(encoder);
-		UserRoles userRoles = new UserRoles(userWithRoles, role);
-		userWithRoles.addUserRoles(userRoles);
 		
 		given(userRepository.findByUsername("test1")).willReturn(Optional.empty());
-		given(userRepository.save(user)).willReturn(user);
-		given(userRolesRepository.save(userRoles)).willReturn(userRoles);
 		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
+		
+		verify(userService, times(1)).registerUser(user);
 	}
 	
 	@Test
@@ -146,11 +134,10 @@ class UserControllerTest {
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
 		Role role = new Role("ROLE_USER");
-		user.addUserRoles(new UserRoles(user, role));
+		user.addRole(role);
 		
 		UserInfo userInfo = new UserInfo("User X", "User Y");		
 
-		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
 		given(userRepository.save(userInfo.toUser(user))).willReturn(userInfo.toUser(user));
 										
