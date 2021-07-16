@@ -23,8 +23,6 @@ import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
 import com.example.demo.security.User.LoginProvider;
 import com.example.demo.security.UserRepository;
-import com.example.demo.security.UserRoles;
-import com.example.demo.security.UserRolesRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,10 +41,7 @@ class UserControllerIntegTest {
 
 	@Autowired
 	private RoleRepository roleRepository;
-	
-	@Autowired
-	private UserRolesRepository userRolesRepository;	
-	
+		
 	private String generateAuthorizationHeader(String username) {
 		return "Bearer " + AuthenticationService.generateToken(username);
 	}	
@@ -54,12 +49,10 @@ class UserControllerIntegTest {
 	@BeforeEach
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
-		userRepository.save(user);		
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
-		UserRoles userRoles = new UserRoles(user, optRole.get());
-		userRoles = userRolesRepository.save(userRoles);
-		user.addUserRoles(userRoles);
-	}	
+		user.addRole(optRole.get());
+		userRepository.save(user);		
+	}
 
 	@Test
 	void testGetCurrentUserOk200() throws Exception {

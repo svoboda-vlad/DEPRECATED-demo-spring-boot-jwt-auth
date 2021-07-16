@@ -28,8 +28,6 @@ import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
 import com.example.demo.security.UserRegister;
 import com.example.demo.security.UserRepository;
-import com.example.demo.security.UserRoles;
-import com.example.demo.security.UserRolesRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -51,9 +49,6 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Autowired
 	private RoleRepository roleRepository;
 	
-	@Autowired
-	private UserRolesRepository userRolesRepository;	
-
 	private static final String USER_ROLE_NAME = "ROLE_USER";	
 
 	public GoogleLoginFilter(AuthenticationManager authManager) {
@@ -87,10 +82,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 						String givenName = (String) payload.get("given_name");
 						UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
 						User user = userRegister.toUserGoogle(encoder);
-						user = userRepository.save(user);
-						UserRoles userRoles = new UserRoles(user, optRole.get());
-						userRoles = userRolesRepository.save(userRoles);
-						user.addUserRoles(userRoles);
+						user.addRole(optRole.get());
+						userRepository.save(user);
 					}
 				}
 			}

@@ -41,9 +41,6 @@ class UserControllerTest {
 	@MockBean
 	private RoleRepository roleRepository;
 	
-	@MockBean
-	private UserRolesRepository userRolesRepository;	
-	
 	private String generateAuthorizationHeader() {
 		return "Bearer " + AuthenticationService.generateToken("user");
 	}
@@ -58,7 +55,7 @@ class UserControllerTest {
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
 		Role role = new Role("ROLE_USER");
-		user.addUserRoles(new UserRoles(user, role));
+		user.addRole(role);
 		
 		given(userService.loadUserByUsername("user")).willReturn(user);
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
@@ -106,12 +103,10 @@ class UserControllerTest {
 		UserRegister userRegister = new UserRegister("test1", "test123","Test 1", "Test 1");
 		User user = userRegister.toUserInternal(encoder);
 		User userWithRoles = userRegister.toUserInternal(encoder);
-		UserRoles userRoles = new UserRoles(userWithRoles, role);
-		userWithRoles.addUserRoles(userRoles);
+		userWithRoles.addRole(role);
 		
 		given(userRepository.findByUsername("test1")).willReturn(Optional.empty());
-		given(userRepository.save(user)).willReturn(user);
-		given(userRolesRepository.save(userRoles)).willReturn(userRoles);
+		given(userRepository.save(user)).willReturn(userWithRoles);
 		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -146,7 +141,7 @@ class UserControllerTest {
 		
 		User user = new User("user",encoder.encode("password"),LoginProvider.INTERNAL,"User","User");
 		Role role = new Role("ROLE_USER");
-		user.addUserRoles(new UserRoles(user, role));
+		user.addRole(role);
 		
 		UserInfo userInfo = new UserInfo("User X", "User Y");		
 

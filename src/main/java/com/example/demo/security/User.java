@@ -73,26 +73,28 @@ public class User implements UserDetails {
     // CascadeType.ALL - enable removing the relation (user_roles.user_id)
     // orphanRemoval - enable removing the related entity (user_roles)
     // fetch - changed to eager
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	private List<UserRoles> userRoles = new ArrayList<UserRoles>();
-    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<UserRoles> roles = new ArrayList<UserRoles>();
     
 	public void addRole(Role role) {
-		UserRoles roles = new UserRoles(this, role);
-		userRoles.add(roles);
+		UserRoles userRoles = new UserRoles(this,role);
+		roles.add(userRoles);
+		// role.getUsers().add(userRoles);
 	}
-	
-	public void removeRole(Role role) {		
-		UserRoles roles = new UserRoles(this, role);
-		userRoles.remove(roles);
-		roles.setUser(null);
-		roles.setRole(null);
-	}
+
+	public void removeRole(Role role) {
+		UserRoles userRoles = new UserRoles(this,role);
+		// role.getUsers().remove(userRoles);
+		roles.remove(userRoles);
+		// @NotNull applied on user + role
+		// userRoles.setUser(null);
+		// userRoles.setRole(null);
+	}    
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> roles = new HashSet<GrantedAuthority>();
-        for (UserRoles role : this.userRoles) {
+        for (UserRoles role : this.roles) {
         	roles.add(new SimpleGrantedAuthority(role.getRole().getName()));
         }
         return roles;
@@ -138,14 +140,8 @@ public class User implements UserDetails {
 		userInfo.setUsername(username);
 		userInfo.setLastLoginDateTime(lastLoginDateTime);
 		userInfo.setPreviousLoginDateTime(previousLoginDateTime);
-		userInfo.setUserRoles(userRoles);
+		userInfo.setUserRoles(roles);
 		return userInfo;
 	}
-	
-	public void addUserRoles(UserRoles userRoles) {
-		this.userRoles.add(userRoles);
-		// @NotNull applied on user
-		// userRoles.setUser(this);
-	}	
 	
 }
