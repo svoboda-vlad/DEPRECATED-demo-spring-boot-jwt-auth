@@ -23,11 +23,10 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.demo.security.AuthenticationService;
-import com.example.demo.security.Role;
-import com.example.demo.security.RoleRepository;
 import com.example.demo.security.User;
 import com.example.demo.security.UserRegister;
 import com.example.demo.security.UserRepository;
+import com.example.demo.security.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -47,10 +46,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 	private UserRepository userRepository;
 	
 	@Autowired
-	private RoleRepository roleRepository;
+	private UserService userService;
 	
-	private static final String USER_ROLE_NAME = "ROLE_USER";	
-
 	public GoogleLoginFilter(AuthenticationManager authManager) {
 		super(new AntPathRequestMatcher("/google-login", "POST"));
 		this.setAuthenticationManager(authManager);
@@ -69,22 +66,14 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 			GoogleIdToken idToken = googleIdTokenVerifier.verify(tokenEntity.getIdToken());
 			if (idToken != null) {
 				Payload payload = idToken.getPayload();
-				username = payload.getSubject();			
+				username = payload.getSubject();
 
 				if (userRepository.findByUsername(username).isEmpty()) {
-					Optional<Role> optRole = roleRepository.findByName(USER_ROLE_NAME);
-
-					if (optRole.isEmpty()) {
-						log.info("Role {} not found in database.", USER_ROLE_NAME);
-						throw new RuntimeException("Role not found.");
-					} else {
-						String familyName = (String) payload.get("family_name");
-						String givenName = (String) payload.get("given_name");
-						UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
-						User user = userRegister.toUserGoogle(encoder);
-						user.addRole(optRole.get());
-						userRepository.save(user);
-					}
+					String familyName = (String) payload.get("family_name");
+					String givenName = (String) payload.get("given_name");
+					UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
+					User user = userRegister.toUserGoogle(encoder);
+					userService.registerUser(user);
 				}
 			}
 		} catch (GeneralSecurityException | IOException e) {

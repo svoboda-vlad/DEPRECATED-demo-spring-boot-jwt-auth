@@ -73,7 +73,7 @@ public class User implements UserDetails {
     // CascadeType.ALL - enable removing the relation (user_roles.user_id)
     // orphanRemoval - enable removing the related entity (user_roles)
     // fetch - changed to eager
-    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<UserRoles> roles = new ArrayList<UserRoles>();
     
 	public void addRole(Role role) {
