@@ -30,6 +30,9 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private UserService userService;	
+	
 	public LoginFilter(AuthenticationManager authManager) {
 		super(new AntPathRequestMatcher("/login", "POST"));
 		this.setAuthenticationManager(authManager);
@@ -56,12 +59,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		AuthenticationService.addToken(res, auth.getName());
-		Optional<User> optUser = userRepository.findByUsername(auth.getName());
-		if (optUser.isPresent()) {
-			User user = optUser.get();
-			user.updateLastLoginDateTime();
-			userRepository.save(user);			
-		}
+		userService.updateLastLoginDateTime(auth.getName());
 	}
 
 	private User resolveUser(HttpServletRequest request) {

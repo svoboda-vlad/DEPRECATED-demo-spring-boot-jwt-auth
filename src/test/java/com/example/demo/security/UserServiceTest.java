@@ -42,5 +42,16 @@ public class UserServiceTest {
 		verify(userRepository, times(1)).save(user);
 		
 	}
+	
+	@Test
+	void testUpdateLastLoginDateTime() {
+		String username = "user";
+		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");		
+
+		given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
+		userService.updateLastLoginDateTime(username);
+		
+		verify(userRepository, times(1)).save(user);
+	}
 
 }

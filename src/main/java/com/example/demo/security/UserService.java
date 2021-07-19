@@ -18,7 +18,7 @@ public class UserService {
 	private RoleRepository roleRepository;
 	
 	@Autowired
-	private UserRepository userRepository;	
+	private UserRepository userRepository;
 	
 	private static final String USER_ROLE_NAME = "ROLE_USER";
 	
@@ -34,5 +34,14 @@ public class UserService {
 			userRepository.save(user);
 		}		
 	}
-
+	
+	public void updateLastLoginDateTime(String username) {
+		Optional<User> optUser = userRepository.findByUsername(username);
+		if (optUser.isPresent()) {
+			User user = optUser.get();
+			user.updateLastLoginDateTime();
+			userRepository.save(user);
+		}		
+	}
+	
 }
