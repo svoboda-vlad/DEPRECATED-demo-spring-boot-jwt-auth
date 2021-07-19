@@ -2,6 +2,8 @@ package com.example.demo.security;
 
 import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ public class UserService {
 			log.info("Role {} not found in database.", USER_ROLE_NAME);
 			throw new RuntimeException("Role not found.");
 		} else {
+			if (userRepository.findByUsername(user.getUsername()).isPresent()) throw new EntityExistsException("User already exists.");
 			user.addRole(optRole.get());
 			userRepository.save(user);
 		}		

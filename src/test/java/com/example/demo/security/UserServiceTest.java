@@ -1,10 +1,13 @@
 package com.example.demo.security;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
+
+import javax.persistence.EntityExistsException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -30,7 +33,7 @@ public class UserServiceTest {
 	private UserService userService;
 	
 	@Test
-	void testRegisterUser() {
+	void testRegisterUserNewUser() {
 		
 		Role role = new Role(USER_ROLE_NAME);
 		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
@@ -42,6 +45,21 @@ public class UserServiceTest {
 		verify(userRepository, times(1)).save(user);
 		
 	}
+	
+	@Test
+	void testRegisterUserAlreadyExistsException() {
+		
+		Role role = new Role(USER_ROLE_NAME);
+		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
+		user.addRole(role);
+		
+		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.of(role));
+		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
+		
+	    assertThatExceptionOfType(EntityExistsException.class)
+        .isThrownBy(() -> { userService.registerUser(user); });		
+		
+	}	
 	
 	@Test
 	void testUpdateLastLoginDateTime() {

@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
+
+import javax.persistence.EntityExistsException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -97,8 +100,6 @@ class UserControllerTest {
 		UserRegister userRegister = new UserRegister("test1", "test123","Test 1", "Test 1");
 		User user = userRegister.toUserInternal(encoder);
 		
-		given(userRepository.findByUsername("test1")).willReturn(Optional.empty());
-		
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
@@ -116,7 +117,7 @@ class UserControllerTest {
 		given(encoder.encode("test123")).willReturn(StringUtils.repeat("A", 60));
 		
 		User user = new User("test1",encoder.encode("test123"),LoginProvider.INTERNAL, "Test 1", "Test 1");
-		given(userRepository.findByUsername("test1")).willReturn(Optional.of(user));
+		willThrow(new EntityExistsException("User already exists.")).given(userService).registerUser(user);
 										
 		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))

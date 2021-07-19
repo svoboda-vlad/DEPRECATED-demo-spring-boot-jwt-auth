@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -31,11 +32,12 @@ public class UserController {
     
     @PostMapping(REGISTRATION_URL)
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegister userRegister) {
-		if (userRepository.findByUsername(userRegister.getUsername()).isPresent())
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		
 			User user = userRegister.toUserInternal(encoder);
-			userService.registerUser(user);
+			try {
+				userService.registerUser(user);
+			} catch (EntityExistsException e) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			}
 			return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
