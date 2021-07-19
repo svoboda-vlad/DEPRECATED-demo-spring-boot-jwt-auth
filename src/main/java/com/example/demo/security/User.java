@@ -136,8 +136,7 @@ public class User implements UserDetails {
 	}
 	
 	public UserInfo toUserInfo() {
-		UserInfo userInfo = new UserInfo(this.getGivenName(), this.getFamilyName());
-		userInfo.setUsername(username);
+		UserInfo userInfo = new UserInfo(this.getUsername(), this.getGivenName(), this.getFamilyName());
 		userInfo.setLastLoginDateTime(lastLoginDateTime);
 		userInfo.setPreviousLoginDateTime(previousLoginDateTime);
 		userInfo.setUserRoles(roles);

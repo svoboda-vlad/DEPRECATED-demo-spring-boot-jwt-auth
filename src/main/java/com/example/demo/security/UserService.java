@@ -3,6 +3,7 @@ package com.example.demo.security;
 import java.util.Optional;
 
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,13 @@ public class UserService {
 			user.updateLastLoginDateTime();
 			userRepository.save(user);
 		}		
+	}
+	
+	public User updateUser(UserInfo userInfo) {
+		Optional<User> optUser = userRepository.findByUsername(userInfo.getUsername());		
+		if (optUser.isEmpty()) throw new EntityNotFoundException("User not found.");		
+		User user = optUser.get();
+		return userRepository.save(userInfo.toUser(user));
 	}
 	
 }

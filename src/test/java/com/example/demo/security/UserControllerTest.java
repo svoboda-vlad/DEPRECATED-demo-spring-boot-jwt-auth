@@ -137,10 +137,9 @@ class UserControllerTest {
 		Role role = new Role("ROLE_USER");
 		user.addRole(role);
 		
-		UserInfo userInfo = new UserInfo("User X", "User Y");		
+		UserInfo userInfo = new UserInfo("user", "User X", "User Y");		
 
-		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
-		given(userRepository.save(userInfo.toUser(user))).willReturn(userInfo.toUser(user));
+		given(userService.updateUser(userInfo)).willReturn(userInfo.toUser(user));
 										
 		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader()).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))

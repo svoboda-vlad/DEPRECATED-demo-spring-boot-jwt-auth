@@ -3,6 +3,7 @@ package com.example.demo.security;
 import java.util.Optional;
 
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -59,16 +60,12 @@ public class UserController {
     @PostMapping(UPDATE_USER_URL)
     public ResponseEntity<UserInfo> updateUser(@Valid @RequestBody UserInfo userInfo) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) return new ResponseEntity<UserInfo>(HttpStatus.NOT_FOUND);
-		
-		Optional<User> optUser = userRepository.findByUsername(authentication.getName());
-		
-		if (optUser.isEmpty()) return new ResponseEntity<UserInfo>(HttpStatus.NOT_FOUND);
-		
-		User user = optUser.get();
-		
-		user = userRepository.save(userInfo.toUser(user));
-		return ResponseEntity.ok(user.toUserInfo());
+		if (!authentication.getName().equals(userInfo.getUsername())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		try {
+			return ResponseEntity.ok(userService.updateUser(userInfo).toUserInfo());
+		} catch (EntityNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -72,4 +73,15 @@ public class UserServiceTest {
 		verify(userRepository, times(1)).save(user);
 	}
 
+	@Test
+	void testUpdateUserOkUserExists() {
+		String username = "user";
+		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
+		UserInfo userInfo = new UserInfo("user", "User", "User");
+
+		given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.save(userInfo.toUser(user))).willReturn(user);
+		assertThat(userService.updateUser(userInfo)).isEqualTo(user);
+	}
+	
 }
