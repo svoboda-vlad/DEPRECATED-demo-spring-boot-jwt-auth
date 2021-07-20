@@ -1,7 +1,6 @@
 package com.example.demo.security;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -30,6 +29,9 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private UserService userService;	
+	
 	public LoginFilter(AuthenticationManager authManager) {
 		super(new AntPathRequestMatcher("/login", "POST"));
 		this.setAuthenticationManager(authManager);
@@ -39,29 +41,23 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException, IOException {
 		User user = resolveUser(req);
-		if (user == null) {
-			throw new BadCredentialsException("");
-		} else {
-			Optional<User> optUser = userRepository.findByUsername(user.getUsername());
-			if (optUser.isPresent()) {
-				if (optUser.get().getLoginProvider() != LoginProvider.INTERNAL)
-					throw new BadCredentialsException("");
-			}
+		
+		if (user == null) throw new BadCredentialsException("");
+		
+		Optional<User> optUser = userRepository.findByUsername(user.getUsername());
+		if (optUser.isPresent()) {
+			if (optUser.get().getLoginProvider() != LoginProvider.INTERNAL)
+				throw new BadCredentialsException("");
 		}
 		return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),
-				user.getPassword(), Collections.emptyList()));
+				user.getPassword()));
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		AuthenticationService.addToken(res, auth.getName());
-		Optional<User> optUser = userRepository.findByUsername(auth.getName());
-		if (optUser.isPresent()) {
-			User user = optUser.get();
-			user.updateLastLoginDateTime();
-			userRepository.save(user);			
-		}
+		userService.updateLastLoginDateTime(auth.getName());
 	}
 
 	private User resolveUser(HttpServletRequest request) {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.exchangerate.CurrencyCode;
 import com.example.demo.exchangerate.CurrencyCodeRepository;
@@ -27,7 +27,7 @@ import com.example.demo.security.AuthenticationService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+//@Transactional - removed due to false positive tests (error in production: detached entity passed to persist)
 // @WithMockUser - not needed
 class ExchangeRateControllerIntegTest {
 
@@ -54,6 +54,11 @@ class ExchangeRateControllerIntegTest {
 		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));
 		currencyCodeRepository.saveAll(currencyCodes);
 	}
+	
+	@AfterEach
+	void cleanData() {
+		currencyCodeRepository.deleteAll();
+	}	
 
 	@Test
 	void testGetAllExchangeRatesOk200() throws Exception {

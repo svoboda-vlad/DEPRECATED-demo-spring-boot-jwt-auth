@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 @NoArgsConstructor
 public class UserInfo {
 
+    @NotNull
+    @Size(min = 1, max = 255)
+    @NonNull	
 	private String username;
 		
 	@NotNull

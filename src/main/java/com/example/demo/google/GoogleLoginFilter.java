@@ -3,8 +3,8 @@ package com.example.demo.google;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
-import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +25,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.example.demo.security.AuthenticationService;
 import com.example.demo.security.User;
 import com.example.demo.security.UserRegister;
-import com.example.demo.security.UserRepository;
 import com.example.demo.security.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -41,9 +40,6 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 	@Autowired
 	private GoogleIdTokenVerifier googleIdTokenVerifier;
-
-	@Autowired
-	private UserRepository userRepository;
 	
 	@Autowired
 	private UserService userService;
@@ -68,12 +64,14 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 				Payload payload = idToken.getPayload();
 				username = payload.getSubject();
 
-				if (userRepository.findByUsername(username).isEmpty()) {
-					String familyName = (String) payload.get("family_name");
-					String givenName = (String) payload.get("given_name");
-					UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
-					User user = userRegister.toUserGoogle(encoder);
-					userService.registerUser(user);
+				String familyName = (String) payload.get("family_name");
+				String givenName = (String) payload.get("given_name");
+				UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
+				User user = userRegister.toUserGoogle(encoder);
+				try {
+					userService.registerUser(user);	
+				} catch (EntityExistsException e){
+					log.info(e.toString());
 				}
 			}
 		} catch (GeneralSecurityException | IOException e) {
@@ -88,12 +86,8 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		AuthenticationService.addToken(res, auth.getName());
-		Optional<User> optUser = userRepository.findByUsername(auth.getName());
-		if (optUser.isPresent()) {
-			User user = optUser.get();
-			user.updateLastLoginDateTime();
-			userRepository.save(user);
-		}
+		
+		userService.updateLastLoginDateTime(auth.getName());
 	}
 
 	private GoogleIdTokenEntity resolveGoogleIdTokenEntity(HttpServletRequest request) {

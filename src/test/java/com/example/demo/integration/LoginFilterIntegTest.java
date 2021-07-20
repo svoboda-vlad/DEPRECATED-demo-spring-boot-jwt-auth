@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.User;
-import com.example.demo.security.UserRepository;
 import com.example.demo.security.User.LoginProvider;
+import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+//@Transactional - removed due to false positive tests (error in production: detached entity passed to persist)
 //@WithMockUser - not needed
 class LoginFilterIntegTest {
 	
@@ -42,6 +42,11 @@ class LoginFilterIntegTest {
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
 		userRepository.save(user);
+	}
+	
+	@AfterEach
+	void cleanData() {
+		userRepository.deleteAll();
 	}	
 
 	@Test
@@ -115,6 +120,32 @@ class LoginFilterIntegTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().doesNotExist("Authorization"));
-	}	
+	}
 	
+	@Test
+	void testLoginInvalidJsonUnauthorized401() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"usernamex\":\"user321\",\"password\":\"pass321\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}
+	
+	@Test
+	void testLoginUsernameDoesNotExistsUnauthorized401() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"username\":\"user321x\",\"password\":\"pass321\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+						
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}	
+		
 }

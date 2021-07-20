@@ -2,6 +2,9 @@ package com.example.demo.security;
 
 import java.util.Optional;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +21,7 @@ public class UserService {
 	private RoleRepository roleRepository;
 	
 	@Autowired
-	private UserRepository userRepository;	
+	private UserRepository userRepository;
 	
 	private static final String USER_ROLE_NAME = "ROLE_USER";
 	
@@ -30,9 +33,26 @@ public class UserService {
 			log.info("Role {} not found in database.", USER_ROLE_NAME);
 			throw new RuntimeException("Role not found.");
 		} else {
+			if (userRepository.findByUsername(user.getUsername()).isPresent()) throw new EntityExistsException("User already exists.");
 			user.addRole(optRole.get());
 			userRepository.save(user);
 		}		
 	}
-
+	
+	public void updateLastLoginDateTime(String username) {
+		Optional<User> optUser = userRepository.findByUsername(username);
+		if (optUser.isPresent()) {
+			User user = optUser.get();
+			user.updateLastLoginDateTime();
+			userRepository.save(user);
+		}		
+	}
+	
+	public User updateUser(UserInfo userInfo) {
+		Optional<User> optUser = userRepository.findByUsername(userInfo.getUsername());		
+		if (optUser.isEmpty()) throw new EntityNotFoundException("User not found.");		
+		User user = optUser.get();
+		return userRepository.save(userInfo.toUser(user));
+	}
+	
 }

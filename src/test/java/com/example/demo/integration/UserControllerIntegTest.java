@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
 import com.example.demo.security.Role;
@@ -26,7 +26,7 @@ import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+//@Transactional - removed due to false positive tests (error in production: detached entity passed to persist)
 //@WithMockUser - not needed
 class UserControllerIntegTest {
 
@@ -41,17 +41,23 @@ class UserControllerIntegTest {
 
 	@Autowired
 	private RoleRepository roleRepository;
-		
+			
 	private String generateAuthorizationHeader(String username) {
 		return "Bearer " + AuthenticationService.generateToken(username);
-	}	
-	
+	}
+		
 	@BeforeEach
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
+		user = userRepository.save(user);
 		user.addRole(optRole.get());
-		userRepository.save(user);		
+		userRepository.save(user);
+	}
+	
+	@AfterEach
+	void cleanData() {
+		userRepository.deleteAll();
 	}
 
 	@Test
@@ -66,7 +72,7 @@ class UserControllerIntegTest {
 	}
 	
 	@Test
-	void testGetCurrentUserNotFound404() throws Exception {
+	void testGetCurrentUserMissingAuthroizationHeaderNotFound404() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 404;
 		String expectedJson = "";
@@ -75,6 +81,17 @@ class UserControllerIntegTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
+	
+	@Test
+	void testGetCurrentUserInvalidAuthroizationHeaderNotFound404() throws Exception {
+		String requestUrl = "/current-user";
+		int expectedStatus = 404;
+		String expectedJson = "";
+				
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("userx")).accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}	
 	
 	@Test
 	void testGetCurrentUserInvalidTokenNotFound404() throws Exception {		
@@ -131,7 +148,30 @@ class UserControllerIntegTest {
 		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("user321")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
-	}	
+	}
 	
-
+	@Test
+	void testUpdateUserUserDoesNotExistsBadRequest400() throws Exception {
+		String requestUrl = "/update-user";
+		String requestJson = "{\"username\":\"userx\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+										
+		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("userx")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testUpdateUserUsernameDoesNotMatchBadRequest400() throws Exception {
+		String requestUrl = "/update-user";
+		String requestJson = "{\"username\":\"userx\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+														
+		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("user")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
 }
