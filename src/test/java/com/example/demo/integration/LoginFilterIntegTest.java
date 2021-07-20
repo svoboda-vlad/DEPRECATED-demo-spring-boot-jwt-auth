@@ -120,6 +120,32 @@ class LoginFilterIntegTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().doesNotExist("Authorization"));
-	}	
+	}
 	
+	@Test
+	void testLoginInvalidJsonUnauthorized401() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"usernamex\":\"user321\",\"password\":\"pass321\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}
+	
+	@Test
+	void testLoginUsernameDoesNotExistsUnauthorized401() throws Exception {
+		String requestUrl = "/login";
+		String requestJson = "{\"username\":\"user321x\",\"password\":\"pass321\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+						
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}	
+		
 }

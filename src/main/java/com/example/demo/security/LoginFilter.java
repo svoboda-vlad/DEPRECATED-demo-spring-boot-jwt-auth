@@ -1,7 +1,6 @@
 package com.example.demo.security;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -42,17 +41,16 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException, IOException {
 		User user = resolveUser(req);
-		if (user == null) {
-			throw new BadCredentialsException("");
-		} else {
-			Optional<User> optUser = userRepository.findByUsername(user.getUsername());
-			if (optUser.isPresent()) {
-				if (optUser.get().getLoginProvider() != LoginProvider.INTERNAL)
-					throw new BadCredentialsException("");
-			}
+		
+		if (user == null) throw new BadCredentialsException("");
+		
+		Optional<User> optUser = userRepository.findByUsername(user.getUsername());
+		if (optUser.isPresent()) {
+			if (optUser.get().getLoginProvider() != LoginProvider.INTERNAL)
+				throw new BadCredentialsException("");
 		}
 		return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),
-				user.getPassword(), Collections.emptyList()));
+				user.getPassword()));
 	}
 
 	@Override

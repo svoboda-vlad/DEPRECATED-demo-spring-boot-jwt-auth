@@ -34,25 +34,20 @@ public class UserServiceTest {
 	private UserService userService;
 	
 	@Test
-	void testRegisterUserNewUser() {
-		
+	void testRegisterUserNewUser() {		
 		Role role = new Role(USER_ROLE_NAME);
 		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
-		user.addRole(role);
 		
 		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.of(role));
 		userService.registerUser(user);
 		
 		verify(userRepository, times(1)).save(user);
-		
 	}
 	
 	@Test
-	void testRegisterUserAlreadyExistsException() {
-		
+	void testRegisterUserAlreadyExistsException() {		
 		Role role = new Role(USER_ROLE_NAME);
 		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
-		user.addRole(role);
 		
 		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.of(role));
 		given(userRepository.findByUsername("user")).willReturn(Optional.of(user));
@@ -60,6 +55,16 @@ public class UserServiceTest {
 	    assertThatExceptionOfType(EntityExistsException.class)
         .isThrownBy(() -> { userService.registerUser(user); });		
 		
+	}
+	
+	@Test
+	void testRegisterUserDefaultRoleNotFound() {		
+		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
+		
+		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.empty());
+		
+	    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> { userService.registerUser(user); });		
 	}	
 	
 	@Test

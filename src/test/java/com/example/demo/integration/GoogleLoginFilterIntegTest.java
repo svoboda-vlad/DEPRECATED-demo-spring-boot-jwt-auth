@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -123,5 +124,48 @@ class GoogleLoginFilterIntegTest {
 				.andExpect(content().json(expectedJson));
 		
 	}
+	
+	@Test
+	void testGoogleLoginVerificationErrorUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"abcdef\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+		
+		given(googleIdTokenVerifier.verify("abcdef")).willThrow(new GeneralSecurityException());
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}
+	
+	@Test
+	void testGoogleLoginInvalidJsonUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idTokenx\":\"abcdef\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}	
+	
+	@Test
+	void testGoogleLoginInvalidTokenUnauthorized401() throws Exception {
+		String requestUrl = "/google-login";
+		String requestJson = "{\"idToken\":\"abcdef\"}";
+		int expectedStatus = 401;
+		String expectedJson = "";
+		
+		given(googleIdTokenVerifier.verify("abcdef")).willReturn(null);
+				
+		this.mvc.perform(post(requestUrl).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson))
+				.andExpect(header().doesNotExist("Authorization"));
+	}		
 	
 }
