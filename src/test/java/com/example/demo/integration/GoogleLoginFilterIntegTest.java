@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
 import com.example.demo.security.Role;
@@ -33,7 +33,7 @@ import com.google.api.client.json.webtoken.JsonWebSignature.Header;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+// @Transactional - removed due to false positive tests (error in production: detached entity passed to persist)
 //@WithMockUser - not needed
 class GoogleLoginFilterIntegTest {
 	
@@ -48,7 +48,7 @@ class GoogleLoginFilterIntegTest {
 	
 	@Autowired
 	private RoleRepository roleRepository;
-		
+	
 	@MockBean
 	private GoogleIdTokenVerifier googleIdTokenVerifier;
 	
@@ -60,8 +60,14 @@ class GoogleLoginFilterIntegTest {
 	void initData() {
 		User user = new User("user321", encoder.encode("user321"),LoginProvider.GOOGLE, "User 321", "User 321");
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
+		user = userRepository.save(user);
 		user.addRole(optRole.get());
 		userRepository.save(user);
+	}
+	
+	@AfterEach
+	void cleanData() {
+		userRepository.deleteAll();
 	}
 
 	@Test

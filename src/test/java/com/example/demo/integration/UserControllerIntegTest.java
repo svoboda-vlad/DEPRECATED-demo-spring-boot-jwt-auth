@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.security.AuthenticationService;
 import com.example.demo.security.Role;
@@ -26,7 +26,7 @@ import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+//@Transactional - removed due to false positive tests (error in production: detached entity passed to persist)
 //@WithMockUser - not needed
 class UserControllerIntegTest {
 
@@ -41,7 +41,7 @@ class UserControllerIntegTest {
 
 	@Autowired
 	private RoleRepository roleRepository;
-		
+			
 	private String generateAuthorizationHeader(String username) {
 		return "Bearer " + AuthenticationService.generateToken(username);
 	}	
@@ -50,8 +50,14 @@ class UserControllerIntegTest {
 	void initData() {
 		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
 		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
+		user = userRepository.save(user);
 		user.addRole(optRole.get());
-		userRepository.save(user);		
+		userRepository.save(user);
+	}
+	
+	@AfterEach
+	void cleanData() {
+		userRepository.deleteAll();
 	}
 
 	@Test

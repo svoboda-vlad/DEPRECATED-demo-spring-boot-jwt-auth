@@ -69,7 +69,7 @@ public class GoogleLoginFilter extends AbstractAuthenticationProcessingFilter {
 				UserRegister userRegister = new UserRegister(username, username, givenName, familyName);
 				User user = userRegister.toUserGoogle(encoder);
 				try {
-					userService.registerUser(user);					
+					userService.registerUser(user);	
 				} catch (EntityExistsException e){
 					log.info(e.toString());
 				}
