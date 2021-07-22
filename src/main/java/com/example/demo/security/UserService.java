@@ -24,6 +24,7 @@ public class UserService {
 	private UserRepository userRepository;
 	
 	private static final String USER_ROLE_NAME = "ROLE_USER";
+	private static final String ADMIN_ROLE_NAME = "ROLE_ADMIN";
 	
 	public void registerUser(User user) {
 		
@@ -38,6 +39,20 @@ public class UserService {
 			userRepository.save(user);
 		}		
 	}
+	
+	public void registerAdminUser(User user) {
+		registerUser(user);		
+		
+		Optional<Role> optRole = roleRepository.findByName(ADMIN_ROLE_NAME);
+
+		if (optRole.isEmpty()) {
+			log.info("Role {} not found in database.", ADMIN_ROLE_NAME);
+			throw new RuntimeException("Role not found.");
+		} else {
+			user.addRole(optRole.get());
+			userRepository.save(user);
+		}		
+	}	
 	
 	public void updateLastLoginDateTime(String username) {
 		Optional<User> optUser = userRepository.findByUsername(username);

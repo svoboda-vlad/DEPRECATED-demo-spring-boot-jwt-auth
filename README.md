@@ -55,6 +55,9 @@ restricted:
 - GET "/exchange-rate/2021-04-15" (ExchangeRateController)
 - POST "/update-user" (UserController)
 
+restricted (administrator):
+- GET "/admin/users" (UserAdminController)
+
 Swagger / OpenAPI
 
 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
@@ -84,7 +87,7 @@ User - id (long), username (String, min = 1, max = 255), password (String, min =
 - parsed from endpoint POST "/login"
 
 UserInfo - username (String, min = 1, max = 255), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime), givenName (String, min = 1, max = 255), familyName (String, min = 1, max = 255)
-- GET "/current-user": {"username": "user1","givenName": "User 1","familyName": "User 1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","userRoles":[{"id":1,"role":{"id":1,"name":"ROLE_USER"}}]}
+- GET "/current-user": {"username": "user1","givenName": "User 1","familyName": "User 1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","userRoles":[{"role":{"id":1,"name":"ROLE_USER"}}]}
 - POST "/update-user": {"username": "user1","givenName": "User 1","familyName": "User 1"}
 
 UserRegister - username (String, min = 1, max = 255), password (String, min = 4, max = 100)
