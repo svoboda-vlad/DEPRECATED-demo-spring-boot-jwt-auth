@@ -200,8 +200,20 @@ PROD:
 
 spring.h2.console.enabled=false
 
-## HEROKU Config Vars
+## Heroku Config Vars
 
 SPRING_PROFILES_ACTIVE=prod
 
 DATABASE_URL=...
+
+## Maven build
+
+```
+sudo mvn clean install -Dhttps.protocols=TLSv1.2
+```
+
+## Administrator account
+
+```
+sudo java -Dadmin.username=admin -Dadmin.password=admin123 -jar target/*.jar
+```

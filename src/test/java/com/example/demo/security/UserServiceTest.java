@@ -3,8 +3,6 @@ package com.example.demo.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
@@ -37,11 +35,13 @@ public class UserServiceTest {
 	void testRegisterUserNewUser() {		
 		Role role = new Role(USER_ROLE_NAME);
 		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
+		user.addRole(role);
 		
 		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.of(role));
-		userService.registerUser(user);
+		given(userRepository.findByUsername("user")).willReturn(Optional.empty());
+		given(userRepository.save(user)).willReturn(user);
 		
-		verify(userRepository, times(1)).save(user);
+		assertThat(userService.registerUser(user)).isEqualTo(user);
 	}
 	
 	@Test
@@ -73,9 +73,9 @@ public class UserServiceTest {
 		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");		
 
 		given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
-		userService.updateLastLoginDateTime(username);
+		given(userRepository.save(user)).willReturn(user);
 		
-		verify(userRepository, times(1)).save(user);
+		assertThat(userService.updateLastLoginDateTime(username)).isEqualTo(user);
 	}
 
 	@Test

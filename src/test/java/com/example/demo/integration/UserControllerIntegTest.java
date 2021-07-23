@@ -41,6 +41,12 @@ class UserControllerIntegTest {
 
 	@Autowired
 	private RoleRepository roleRepository;
+	
+	private static final String USERNAME = "user1";
+	private static final String PASSWORD = "pass123";	
+	private static final String ROLE_USER = "ROLE_USER";
+	private static final String USERNAME_INVALID = "user2";
+	private static final String USERNAME_NEW = "usernew";
 			
 	private String generateAuthorizationHeader(String username) {
 		return "Bearer " + AuthenticationService.generateToken(username);
@@ -48,8 +54,8 @@ class UserControllerIntegTest {
 		
 	@BeforeEach
 	void initData() {
-		User user = new User("user321", encoder.encode("pass321"),LoginProvider.INTERNAL, "User 321", "User 321");
-		Optional<Role> optRole = roleRepository.findByName("ROLE_USER");
+		User user = new User(USERNAME, encoder.encode(PASSWORD),LoginProvider.INTERNAL, "User 321", "User 321");
+		Optional<Role> optRole = roleRepository.findByName(ROLE_USER);
 		user = userRepository.save(user);
 		user.addRole(optRole.get());
 		userRepository.save(user);
@@ -64,9 +70,9 @@ class UserControllerIntegTest {
 	void testGetCurrentUserOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user1\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("user321")).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -88,7 +94,7 @@ class UserControllerIntegTest {
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("userx")).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME_INVALID)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}	
@@ -99,7 +105,7 @@ class UserControllerIntegTest {
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("user321") + "xxx").accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME) + "xxx").accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));		
 		
@@ -108,7 +114,7 @@ class UserControllerIntegTest {
 	@Test
 	void testRegisterUserCreated201() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"test1\", \"password\": \"test123\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
+		String requestJson = "{\"username\": \"usernew\", \"password\": \"pass123new\",\"givenName\": \"Test 1\",\"familyName\": \"Test 1\"}";
 		int expectedStatus = 201;
 		String expectedJson = "";
 		
@@ -118,9 +124,9 @@ class UserControllerIntegTest {
 		
 		requestUrl = "/current-user";
 		expectedStatus = 200;
-		expectedJson = "{\"username\":\"test1\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		expectedJson = "{\"username\":\"usernew\",\"givenName\":\"Test 1\",\"familyName\":\"Test 1\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader("test1"))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME_NEW))
 				.accept(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 		
@@ -129,7 +135,7 @@ class UserControllerIntegTest {
 	@Test
 	void testRegisterUserExistsAlreadyBadRequest400() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"user321\", \"password\": \"test123\",\"givenName\": \"User 321\",\"familyName\": \"User 321\"}";
+		String requestJson = "{\"username\": \"user1\", \"password\": \"pass123\",\"givenName\": \"User 321\",\"familyName\": \"User 321\"}";
 		int expectedStatus = 400;
 		String expectedJson = "";
 												
@@ -141,25 +147,13 @@ class UserControllerIntegTest {
 	@Test
 	void testUpdateUserOk200() throws Exception {
 		String requestUrl = "/update-user";
-		String requestJson = "{\"username\":\"user321\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
+		String requestJson = "{\"username\":\"user1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user321\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user1\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 												
-		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("user321")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
-	}
-	
-	@Test
-	void testUpdateUserUserDoesNotExistsBadRequest400() throws Exception {
-		String requestUrl = "/update-user";
-		String requestJson = "{\"username\":\"userx\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
-		int expectedStatus = 400;
-		String expectedJson = "";
-										
-		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("userx")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
-		.andExpect(status().is(expectedStatus))
-				.andExpect(content().string(expectedJson));
 	}
 	
 	@Test
@@ -169,7 +163,7 @@ class UserControllerIntegTest {
 		int expectedStatus = 400;
 		String expectedJson = "";
 														
-		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader("user")).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}

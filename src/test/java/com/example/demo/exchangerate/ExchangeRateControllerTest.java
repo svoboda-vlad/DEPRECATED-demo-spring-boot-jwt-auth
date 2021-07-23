@@ -12,15 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.Role;
+import com.example.demo.security.User;
+import com.example.demo.security.UserRegister;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,10 +43,29 @@ class ExchangeRateControllerTest {
 	@MockBean
 	private CurrencyCodeRepository currencyCodeRepository;	
 	
-	private String generateAuthorizationHeader() {
-		return "Bearer " + AuthenticationService.generateToken("user");
+	@MockBean
+	private UserDetailsService userDetailsService;
+	
+	@MockBean
+	private PasswordEncoder encoder;
+	
+	private static final String USERNAME = "user1";
+	private static final String PASSWORD = "pass123";
+	private static final String ROLE_USER = "ROLE_USER";
+	
+	private String generateAuthorizationHeader(String username) {
+		return "Bearer " + AuthenticationService.generateToken(username);
 	}
-
+	
+	@BeforeEach
+	private void initData() {
+		given(encoder.encode(PASSWORD)).willReturn(StringUtils.repeat("A", 60));
+		UserRegister userRegister = new UserRegister(USERNAME, PASSWORD, "user", "user");
+		User user = userRegister.toUserInternal(encoder);
+		user.addRole(new Role(ROLE_USER));
+		given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(user);
+	}
+	
 	@Test
 	void testGetAllExchangeRatesOk200() throws Exception {
 		String requestUrl = "/exchange-rate";
@@ -56,7 +82,7 @@ class ExchangeRateControllerTest {
 
 		given(exchangeRateRepository.findAll()).willReturn(ratesList);
 
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is(expectedStatus)).andExpect(content().json(expectedJson));
 	}
 
@@ -73,7 +99,7 @@ class ExchangeRateControllerTest {
 
 		given(exchangeRateRepository.save(rate)).willReturn(rate);
 
-		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader())
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -93,7 +119,7 @@ class ExchangeRateControllerTest {
 		given(currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));
 		given(exchangeRateRepository.findByCurrencyCode(code)).willReturn(ratesList);
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -106,7 +132,7 @@ class ExchangeRateControllerTest {
 				
 		given(currencyCodeRepository.findById(1L)).willReturn(Optional.empty());
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
@@ -126,7 +152,7 @@ class ExchangeRateControllerTest {
 		
 		given(exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15))).willReturn(ratesList);
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}

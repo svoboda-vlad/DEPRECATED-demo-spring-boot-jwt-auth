@@ -28,20 +28,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().cors().and().authorizeRequests().antMatchers(HttpMethod.POST, "/login", "/register")
-				.permitAll().antMatchers("/h2-console/**", "/current-user").permitAll()
+		http.csrf().disable().cors().and().authorizeRequests().antMatchers("/admin/**").hasRole("ADMIN")
+				.antMatchers(HttpMethod.POST, "/login", "/register").permitAll()
+				.antMatchers("/h2-console/**", "/current-user").permitAll()
 				.antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll().anyRequest()
-				.authenticated().and()
+				.hasRole("USER")
+				.and()
 				// Filter for login requests
-				.addFilterBefore(loginFilter(),
-						UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
 				// Filter for login requests
-				.addFilterBefore(googleLoginFilter(),
-						UsernamePasswordAuthenticationFilter.class)				
+				.addFilterBefore(googleLoginFilter(), UsernamePasswordAuthenticationFilter.class)
 				// Filter for other requests to check JWT in header
-				.addFilterBefore(authenticationFilter,
-						UsernamePasswordAuthenticationFilter.class)
-				.headers().frameOptions().disable().and().sessionManagement()
+				.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class).headers()
+				.frameOptions().disable().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 
