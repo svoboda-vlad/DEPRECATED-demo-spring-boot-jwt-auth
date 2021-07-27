@@ -54,7 +54,7 @@ class UserControllerIntegTest {
 		
 	@BeforeEach
 	void initData() {
-		User user = new User(USERNAME, encoder.encode(PASSWORD),LoginProvider.INTERNAL, "User 321", "User 321");
+		User user = new User(USERNAME, encoder.encode(PASSWORD),LoginProvider.INTERNAL, "User 1", "User 1");
 		Optional<Role> optRole = roleRepository.findByName(ROLE_USER);
 		user = userRepository.save(user);
 		user.addRole(optRole.get());
@@ -70,7 +70,7 @@ class UserControllerIntegTest {
 	void testGetCurrentUserOk200() throws Exception {
 		String requestUrl = "/current-user";
 		int expectedStatus = 200;
-		String expectedJson = "{\"username\":\"user1\",\"givenName\":\"User 321\",\"familyName\":\"User 321\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
+		String expectedJson = "{\"username\":\"user1\",\"givenName\":\"User 1\",\"familyName\":\"User 1\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
 		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
@@ -135,7 +135,7 @@ class UserControllerIntegTest {
 	@Test
 	void testRegisterUserExistsAlreadyBadRequest400() throws Exception {
 		String requestUrl = "/register";
-		String requestJson = "{\"username\": \"user1\", \"password\": \"pass123\",\"givenName\": \"User 321\",\"familyName\": \"User 321\"}";
+		String requestJson = "{\"username\": \"user1\", \"password\": \"pass123\",\"givenName\": \"User 1\",\"familyName\": \"User 1\"}";
 		int expectedStatus = 400;
 		String expectedJson = "";
 												
