@@ -21,6 +21,7 @@ import com.example.demo.security.User.LoginProvider;
 public class UserServiceTest {
 	
 	private static final String USER_ROLE_NAME = "ROLE_USER";
+	private static final String ADMIN_ROLE_NAME = "ROLE_ADMIN";
 	
 	@MockBean
 	private RoleRepository roleRepository;
@@ -32,7 +33,7 @@ public class UserServiceTest {
 	private UserService userService;
 	
 	@Test
-	void testRegisterUserNewUser() {		
+	void testRegisterUserNewUser() {
 		Role role = new Role(USER_ROLE_NAME);
 		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
 		user.addRole(role);
@@ -88,5 +89,33 @@ public class UserServiceTest {
 		given(userRepository.save(userInfo.toUser(user))).willReturn(user);
 		assertThat(userService.updateUser(userInfo)).isEqualTo(user);
 	}
+	
+	@Test
+	void testRegisterUserNewAdminUser() {
+		Role role1 = new Role(USER_ROLE_NAME);
+		Role role2 = new Role(ADMIN_ROLE_NAME);
+		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
+		user.addRole(role1);
+		user.addRole(role2);
+		
+		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.of(role1));
+		given(roleRepository.findByName(ADMIN_ROLE_NAME)).willReturn(Optional.of(role2));		
+		given(userRepository.findByUsername("user")).willReturn(Optional.empty());
+		given(userRepository.save(user)).willReturn(user);
+		
+		assertThat(userService.registerAdminUser(user)).isEqualTo(user);
+	}
+	
+	@Test
+	void testRegisterAdminUserAdminRoleNotFound() {		
+		User user = new User("user", StringUtils.repeat("A", 60), LoginProvider.INTERNAL,"User","User");
+		
+		Role role1 = new Role(USER_ROLE_NAME);
+		given(roleRepository.findByName(USER_ROLE_NAME)).willReturn(Optional.of(role1));
+		given(roleRepository.findByName(ADMIN_ROLE_NAME)).willReturn(Optional.empty());
+		
+	    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> { userService.registerAdminUser(user); });		
+	}	
 	
 }
