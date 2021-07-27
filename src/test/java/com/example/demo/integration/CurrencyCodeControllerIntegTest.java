@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,12 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.exchangerate.CurrencyCode;
 import com.example.demo.exchangerate.CurrencyCodeRepository;
 import com.example.demo.exchangerate.ExchangeRate;
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.Role;
+import com.example.demo.security.RoleRepository;
+import com.example.demo.security.User;
+import com.example.demo.security.UserRegister;
+import com.example.demo.security.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,10 +42,23 @@ class CurrencyCodeControllerIntegTest {
 	private MockMvc mvc;
 	
 	@Autowired
-	private CurrencyCodeRepository currencyCodeRepository;
+	private PasswordEncoder encoder;	
 	
-	private String generateAuthorizationHeader() {
-		return "Bearer " + AuthenticationService.generateToken("user");
+	@Autowired
+	private CurrencyCodeRepository currencyCodeRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private RoleRepository roleRepository;	
+	
+	private static final String USERNAME = "user1";
+	private static final String PASSWORD = "pass123";
+	private static final String ROLE_USER = "ROLE_USER";
+	
+	private String generateAuthorizationHeader(String username) {
+		return "Bearer " + AuthenticationService.generateToken(username);
 	}
 	
 	@BeforeEach
@@ -51,11 +71,20 @@ class CurrencyCodeControllerIntegTest {
 		currencyCode2.addExchangeRate(exchangeRate2);
 		List<CurrencyCode> currencyCodes = new ArrayList<CurrencyCode>(Arrays.asList(currencyCode1, currencyCode2));		
 		currencyCodeRepository.saveAll(currencyCodes);
+		
+		UserRegister userRegister = new UserRegister(USERNAME, PASSWORD, "user", "user");
+		User user = userRegister.toUserInternal(encoder);
+		user = userRepository.save(user);
+		Optional<Role> optRole = roleRepository.findByName(ROLE_USER);
+		user.addRole(optRole.get());
+		userRepository.save(user);
+		
 	}
 	
 	@AfterEach
 	void cleanData() {
 		currencyCodeRepository.deleteAll();
+		userRepository.deleteAll();
 	}
 
 	@Test
@@ -65,7 +94,7 @@ class CurrencyCodeControllerIntegTest {
 		String expectedJson = "[{\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}," 
 		+ "{\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}]";
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -77,7 +106,7 @@ class CurrencyCodeControllerIntegTest {
 		int expectedStatus = 201;
 		String expectedJson = "{\"currencyCode\":\"GBP\",\"country\":\"Velká Británie\",\"rateQty\":1}";
 				
-		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -89,7 +118,7 @@ class CurrencyCodeControllerIntegTest {
 		int expectedStatus = 400;
 		String expectedJson = "";
 						
-		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}	
@@ -102,7 +131,7 @@ class CurrencyCodeControllerIntegTest {
 		int expectedStatus = 200;
 		String expectedJson = "{\"id\":" + code.getId() + ",\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}";
 						
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -113,7 +142,7 @@ class CurrencyCodeControllerIntegTest {
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}

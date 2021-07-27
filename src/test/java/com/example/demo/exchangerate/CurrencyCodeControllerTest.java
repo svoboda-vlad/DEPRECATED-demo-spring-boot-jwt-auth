@@ -10,15 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.demo.security.AuthenticationService;
+import com.example.demo.security.Role;
+import com.example.demo.security.User;
+import com.example.demo.security.UserRegister;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,8 +38,27 @@ class CurrencyCodeControllerTest {
 	@MockBean
 	private CurrencyCodeRepository currencyCodeRepository;
 	
-	private String generateAuthorizationHeader() {
-		return "Bearer " + AuthenticationService.generateToken("user");
+	@MockBean
+	private UserDetailsService userDetailsService;
+	
+	@MockBean
+	private PasswordEncoder encoder;
+	
+	private static final String USERNAME = "user1";
+	private static final String PASSWORD = "pass123";
+	private static final String ROLE_USER = "ROLE_USER";
+	
+	private String generateAuthorizationHeader(String username) {
+		return "Bearer " + AuthenticationService.generateToken(username);
+	}
+	
+	@BeforeEach
+	private void initData() {
+		given(encoder.encode(PASSWORD)).willReturn(StringUtils.repeat("A", 60));
+		UserRegister userRegister = new UserRegister(USERNAME, PASSWORD, "user", "user");
+		User user = userRegister.toUserInternal(encoder);
+		user.addRole(new Role(ROLE_USER));
+		given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(user);
 	}
 
 	@Test
@@ -48,7 +74,7 @@ class CurrencyCodeControllerTest {
 		
 		given(currencyCodeRepository.findAll()).willReturn(codesList);
 		
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -63,7 +89,7 @@ class CurrencyCodeControllerTest {
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
 		given(currencyCodeRepository.save(code)).willReturn(code);		
 				
-		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -79,7 +105,7 @@ class CurrencyCodeControllerTest {
 		given(currencyCodeRepository.save(code)).willReturn(code);		
 		given(currencyCodeRepository.findByCurrencyCode("EUR")).willReturn(code);
 				
-		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(post(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}	
@@ -93,7 +119,7 @@ class CurrencyCodeControllerTest {
 		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
 		given(currencyCodeRepository.findById(1L)).willReturn(Optional.of(code));		
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
@@ -106,7 +132,7 @@ class CurrencyCodeControllerTest {
 		
 		given(currencyCodeRepository.findById(1L)).willReturn(Optional.empty());		
 				
-		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader()).accept(MediaType.APPLICATION_JSON))
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
