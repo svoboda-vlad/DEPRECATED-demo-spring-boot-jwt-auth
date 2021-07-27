@@ -88,7 +88,7 @@ User - id (long), username (String, min = 1, max = 255), password (String, min =
 
 UserInfo - username (String, min = 1, max = 255), lastLoginDateTime (LocalDateTime), previousLoginDateTime (LocalDateTime), givenName (String, min = 1, max = 255), familyName (String, min = 1, max = 255)
 - GET "/current-user": {"username": "user1","givenName": "User 1","familyName": "User 1","lastLoginDateTime": "2021-05-05T12:50:12.354751","previousLoginDateTime": "2021-05-05T12:50:12.354751","userRoles":[{"role":{"id":1,"name":"ROLE_USER"}}]}
-- GET "/admin/users": [{"username":"user2","givenName":"User 2","familyName":"User 2","lastLoginDateTime":null,"previousLoginDateTime":null,"userRoles":[{"role":{"id":1,"name":"ROLE_USER"}}]},{"username":"user1","givenName":"User 1","familyName":"User 1","lastLoginDateTime":null,"previousLoginDateTime":null,"userRoles":[{"role":{"id":1,"name":"ROLE_USER"}},{"role":{"id":2,"name":"ROLE_ADMIN"}}]}]
+- GET "/admin/users": [{"username":"user2","givenName":"User 2","familyName":"User 2","lastLoginDateTime": "2021-07-27T08:08:50.759683","previousLoginDateTime": "2021-07-27T08:08:50.759683","userRoles":[{"role":{"id":1,"name":"ROLE_USER"}}]},{"username":"user1","givenName":"User 1","familyName":"User 1","lastLoginDateTime": "2021-07-27T08:08:50.759683","previousLoginDateTime": "2021-07-27T08:08:50.759683","userRoles":[{"role":{"id":1,"name":"ROLE_USER"}},{"role":{"id":2,"name":"ROLE_ADMIN"}}]}]
 - POST "/update-user": {"username": "user1","givenName": "User 1","familyName": "User 1"}
 
 UserRegister - username (String, min = 1, max = 255), password (String, min = 4, max = 100)
@@ -209,10 +209,17 @@ DATABASE_URL=...
 
 ## Maven build
 
+default "dev" profile
+
 ```
 sudo mvn clean install -Dhttps.protocols=TLSv1.2
 ```
 
+"integration" profile - integration testing
+
+```
+sudo mvn clean install -Dhttps.protocols=TLSv1.2 -Dspring.profiles.active=integ
+```
 ## Administrator account
 
 ```
