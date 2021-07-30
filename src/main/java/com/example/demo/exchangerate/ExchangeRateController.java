@@ -8,10 +8,13 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,5 +61,34 @@ public class ExchangeRateController {
     public ResponseEntity<List<ExchangeRate>> getExchangeRatesByRateDate(@PathVariable String rateDate) {
     	return ResponseEntity.ok(exchangeRateRepository.findByRateDate(LocalDate.parse(rateDate)));
     }
+    
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @PutMapping(EXCHANGE_RATE_URL + "/{id}")
+    public ResponseEntity<ExchangeRate> updateExchangeRate(@Valid @RequestBody ExchangeRate exchangeRate, @PathVariable long id) throws URISyntaxException {    	
+        if (exchangeRate.getId() == 0L) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        if (id != exchangeRate.getId()) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        if (exchangeRateRepository.findById(id).isEmpty()) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    	
+    	ExchangeRate updated = exchangeRateRepository.save(exchangeRate);
+        return ResponseEntity.ok(updated);
+    }
+    
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @DeleteMapping(EXCHANGE_RATE_URL + "/{id}")
+    public ResponseEntity<ExchangeRate> deleteExchangeRate(@PathVariable long id) throws URISyntaxException {
+        if (exchangeRateRepository.findById(id).isEmpty()) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    	
+    	exchangeRateRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }    
         
 }

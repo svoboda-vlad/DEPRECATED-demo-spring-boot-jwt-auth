@@ -9,9 +9,11 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,5 +54,27 @@ public class CurrencyCodeController {
 		}
 		return ResponseEntity.notFound().build();
 	}
+	
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @PutMapping(CURRENCY_CODE_URL + "/{id}")
+    public ResponseEntity<CurrencyCode> updateCurrencyCode(@Valid @RequestBody CurrencyCode currencyCode, @PathVariable long id) throws URISyntaxException {    	
+        if (currencyCode.getId() == 0L) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();        
+        if (id != currencyCode.getId()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if (currencyCodeRepository.findById(id).isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    	
+    	CurrencyCode updated = currencyCodeRepository.save(currencyCode);
+        return ResponseEntity.ok(updated);
+    }
+    
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @DeleteMapping(CURRENCY_CODE_URL + "/{id}")
+    public ResponseEntity<CurrencyCode> deleteCurrencyCode(@PathVariable long id) throws URISyntaxException {
+        if (currencyCodeRepository.findById(id).isEmpty()) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    	
+        currencyCodeRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }    
 
 }
