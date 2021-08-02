@@ -1,7 +1,9 @@
 package com.example.demo.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -146,5 +148,81 @@ class CurrencyCodeControllerIntegTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
+	
+	@Test
+	void testUpdateCurrencyCodeOk200() throws Exception {
+		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
+		
+		String requestUrl = "/currency-code/" + code.getId();		
+		String requestJson = "{\"id\":" + code.getId() + ",\"currencyCode\":\"EUR\",\"country\":\"EMU2\",\"rateQty\":1}";
+		int expectedStatus = 200;
+		String expectedJson = requestJson;
+						
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+	}
+	
+	@Test
+	void testUpdateCurrencyCodeMissingIdBadRequest400() throws Exception {
+		String requestUrl = "/currency-code/3";
+		String requestJson = "{\"currencyCode\":\"EUR\",\"country\":\"EMU2\",\"rateQty\":1}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+						
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testUpdateCurrencyCodeIdsNotMatchingBadRequest400() throws Exception {
+		String requestUrl = "/currency-code/2";
+		String requestJson = "{\"id\":3,\"currencyCode\":\"EUR\",\"country\":\"EMU2\",\"rateQty\":1}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+						
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testUpdateCurrencyCodeNotFoundBadRequest400() throws Exception {
+		String requestUrl = "/currency-code/3";
+		String requestJson = "{\"id\":3,\"currencyCode\":\"EUR\",\"country\":\"EMU2\",\"rateQty\":1}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+						
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testDeleteCurrencyCodeNoContent204() throws Exception {
+		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
+		
+		String requestUrl = "/currency-code/" + code.getId();		
+		String requestJson = "";
+		int expectedStatus = 204;
+		String expectedJson = "";
+				
+		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));		
+	}
+	
+	@Test
+	void testDeleteCurrencyCodeNotFoundBadRequest400() throws Exception {
+		String requestUrl = "/currency-code/3";
+		String requestJson = "";
+		int expectedStatus = 400;
+		String expectedJson = "";
+						
+		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));		
+	}		
 
 }

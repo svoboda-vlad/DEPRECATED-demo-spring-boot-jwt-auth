@@ -1,7 +1,9 @@
 package com.example.demo.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.demo.exchangerate.CurrencyCode;
 import com.example.demo.exchangerate.CurrencyCodeRepository;
 import com.example.demo.exchangerate.ExchangeRate;
+import com.example.demo.exchangerate.ExchangeRateRepository;
 import com.example.demo.security.AuthenticationService;
 import com.example.demo.security.Role;
 import com.example.demo.security.RoleRepository;
@@ -46,6 +49,9 @@ class ExchangeRateControllerIntegTest {
 
 	@Autowired
 	private CurrencyCodeRepository currencyCodeRepository;
+
+	@Autowired
+	private ExchangeRateRepository exchangeRateRepository;	
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -149,5 +155,86 @@ class ExchangeRateControllerIntegTest {
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
+	
+	@Test
+	void testUpdateExchangeRateOk200() throws Exception {
+		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
+		List<ExchangeRate> ratesList = exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15));
+		ExchangeRate rate = ratesList.get(0);
+		String requestUrl = "/exchange-rate/" + rate.getId();
+		
+		String requestJson = "{\"id\":" + rate.getId() + ",\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":" + code.getId() + "}}";
+		int expectedStatus = 200;
+		String expectedJson = requestJson;
+
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+	}
+	
+	@Test
+	void testUpdateExchangeRateMissingIdBadRequest400() throws Exception {
+		String requestUrl = "/exchange-rate/3";
+		String requestJson = "{\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":1}}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testUpdateExchangeRateIdsNotMatchingBadRequest400() throws Exception {
+		String requestUrl = "/exchange-rate/2";
+		String requestJson = "{\"id\":3,\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":1}}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testUpdateExchangeRateNotFoundBadRequest400() throws Exception {
+		String requestUrl = "/exchange-rate/3";
+		String requestJson = "{\"id\":3,\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":1}}";
+		int expectedStatus = 400;
+		String expectedJson = "";
+		
+		this.mvc.perform(put(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testDeleteExchangeRateNoContent204() throws Exception {		
+		CurrencyCode currencyCode1 = new CurrencyCode("test1", "test1", 1);
+		ExchangeRate exchangeRate1 = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), currencyCode1);
+		currencyCode1.addExchangeRate(exchangeRate1);
+		currencyCode1 = currencyCodeRepository.save(currencyCode1);
+		
+		String requestUrl = "/exchange-rate/" + currencyCode1.getId();
+		String requestJson = "";
+		int expectedStatus = 204;
+		String expectedJson = "";
+
+		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}		
+	
+	@Test
+	void testDeleteExchangeRateNotFoundBadRequest400() throws Exception {
+		String requestUrl = "/exchange-rate/3";
+		String requestJson = "";
+		int expectedStatus = 400;
+		String expectedJson = "";
+		
+		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+	}	
 		
 }
