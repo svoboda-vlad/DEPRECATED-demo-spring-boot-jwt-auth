@@ -146,7 +146,7 @@ class ExchangeRateControllerIntegTest {
 	
 	@Test
 	void testGetExchangeRatesByRateDateOk200() throws Exception {
-		String requestUrl = "/exchange-rate/2021-04-15";
+		String requestUrl = "/exchange-rate/date/2021-04-15";
 		int expectedStatus = 200;
 		String expectedJson = "[{\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}},"
 				+ "{\"rateDate\":\"2021-04-15\",\"rate\":21.669,\"currencyCode\":{\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}}]";
@@ -215,7 +215,7 @@ class ExchangeRateControllerIntegTest {
 		currencyCode1.addExchangeRate(exchangeRate1);
 		currencyCode1 = currencyCodeRepository.save(currencyCode1);
 		
-		String requestUrl = "/exchange-rate/" + currencyCode1.getId();
+		String requestUrl = "/exchange-rate/" + exchangeRate1.getId();
 		String requestJson = "";
 		int expectedStatus = 204;
 		String expectedJson = "";
@@ -235,6 +235,22 @@ class ExchangeRateControllerIntegTest {
 		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
+	}
+	
+	@Test
+	void testGetExchangeRateOk200() throws Exception {
+		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
+		List<ExchangeRate> ratesList = exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15));
+		ExchangeRate rate = ratesList.get(0);
+		String requestUrl = "/exchange-rate/" + rate.getId();
+		
+		String requestJson = "";
+		int expectedStatus = 200;
+		String expectedJson = "{\"id\":" + rate.getId() + ",\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":" + code.getId() + "}}";
+
+		this.mvc.perform(get(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
 	}	
 		
 }

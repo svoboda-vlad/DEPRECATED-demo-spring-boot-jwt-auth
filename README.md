@@ -49,10 +49,11 @@ unrestricted, but not REST API:
 
 restricted:
 - GET + POST "/currency-code" (CurrencyCodeController)
-- GET "/currency-code/1" (CurrencyCodeController)
+- GET + PUT + DELETE "/currency-code/1" (CurrencyCodeController)
 - GET + POST "/exchange-rate" (ExchangeRateController)
+- GET + PUT + DELETE "/exchange-rate/1" (ExchangeRateController)
 - GET "/exchange-rate/currency-code/1" (ExchangeRateController)
-- GET "/exchange-rate/2021-04-15" (ExchangeRateController)
+- GET "/exchange-rate/date/2021-04-15" (ExchangeRateController)
 - POST "/update-user" (UserController)
 
 restricted (administrator):

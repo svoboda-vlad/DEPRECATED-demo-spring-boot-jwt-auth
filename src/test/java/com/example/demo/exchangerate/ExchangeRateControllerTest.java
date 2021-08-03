@@ -141,7 +141,7 @@ class ExchangeRateControllerTest {
 	
 	@Test
 	void testGetExchangeRatesByRateDateOk200() throws Exception {
-		String requestUrl = "/exchange-rate/2021-04-15";
+		String requestUrl = "/exchange-rate/date/2021-04-15";
 		int expectedStatus = 200;
 		String expectedJson = "[{\"id\":0,\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":0,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}},"
 				+ "{\"id\":0,\"rateDate\":\"2021-04-15\",\"rate\":21.669,\"currencyCode\":{\"id\":0,\"currencyCode\":\"USD\",\"country\":\"USA\",\"rateQty\":1}}]";
@@ -249,5 +249,24 @@ class ExchangeRateControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
+	
+	@Test
+	void testGetExchangeRateOk200() throws Exception {
+		String requestUrl = "/exchange-rate/3";
+		String requestJson = "";
+		int expectedStatus = 200;
+		String expectedJson = "{\"id\":3,\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":1,\"currencyCode\":\"EUR\",\"country\":\"EMU\",\"rateQty\":1}}";
+
+		CurrencyCode code = new CurrencyCode("EUR", "EMU", 1);
+		code.setId(1L);
+		ExchangeRate rate = new ExchangeRate(LocalDate.of(2021, 4, 15), new BigDecimal("25.940"), code);
+		rate.setId(3L);
+		
+		given(exchangeRateRepository.findById(3L)).willReturn(Optional.of(rate));
+
+		this.mvc.perform(get(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+				.andExpect(content().json(expectedJson));
+	}	
 	
 }

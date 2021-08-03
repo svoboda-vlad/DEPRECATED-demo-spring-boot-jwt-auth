@@ -29,7 +29,8 @@ public class ExchangeRateController {
     private final ExchangeRateRepository exchangeRateRepository;
     private final CurrencyCodeRepository currencyCodeRepository;    
     private static final String EXCHANGE_RATE_URL = "/exchange-rate";
-    private static final String CURRENCY_CODE_URL = "/currency-code";    
+    private static final String CURRENCY_CODE_URL = "/currency-code";
+    private static final String EXCHANGE_RATE_BY_DATE_URL = "/exchange-rate/date";    
 
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     @GetMapping(EXCHANGE_RATE_URL)
@@ -57,7 +58,7 @@ public class ExchangeRateController {
     }
 
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
-    @GetMapping(EXCHANGE_RATE_URL + "/{rateDate}")
+    @GetMapping(EXCHANGE_RATE_BY_DATE_URL + "/{rateDate}")
     public ResponseEntity<List<ExchangeRate>> getExchangeRatesByRateDate(@PathVariable String rateDate) {
     	return ResponseEntity.ok(exchangeRateRepository.findByRateDate(LocalDate.parse(rateDate)));
     }
@@ -89,6 +90,16 @@ public class ExchangeRateController {
     	
     	exchangeRateRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }    
+    }
+    
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @GetMapping(EXCHANGE_RATE_URL + "/{id}")
+    public ResponseEntity<ExchangeRate> getExchangeRate(@PathVariable Long id) {
+            Optional<ExchangeRate> exchangeRate = exchangeRateRepository.findById(id);
+            if (exchangeRate.isPresent()) {
+                    return ResponseEntity.ok(exchangeRate.get());
+            }
+            return ResponseEntity.notFound().build();
+    }
         
 }
