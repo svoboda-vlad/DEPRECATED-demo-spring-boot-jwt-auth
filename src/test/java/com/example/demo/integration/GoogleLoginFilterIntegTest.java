@@ -112,7 +112,7 @@ class GoogleLoginFilterIntegTest {
 				.andExpect(content().string(expectedJson))
 				.andExpect(header().exists("Authorization"));
 		
-		requestUrl = "/current-user";
+		requestUrl = "/user";
 		expectedStatus = 200;
 		Optional<User> optUser = userRepository.findByUsername("user322");
 		expectedJson = "{\"username\":\"user322\",\"givenName\":\"User 322\",\"familyName\":\"User 322\",\"userRoles\":[{\"role\":{\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":\""

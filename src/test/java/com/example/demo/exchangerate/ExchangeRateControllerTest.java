@@ -220,7 +220,6 @@ class ExchangeRateControllerTest {
 	@Test
 	void testDeleteExchangeRateNoContent204() throws Exception {
 		String requestUrl = "/exchange-rate/3";
-		String requestJson = "";
 		int expectedStatus = 204;
 		String expectedJson = "";
 
@@ -231,22 +230,21 @@ class ExchangeRateControllerTest {
 		
 		given(exchangeRateRepository.findById(3L)).willReturn(Optional.of(rate));
 
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
+		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}		
 	
 	@Test
 	void testDeleteExchangeRateNotFoundBadRequest400() throws Exception {
 		String requestUrl = "/exchange-rate/3";
-		String requestJson = "";
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
 		given(exchangeRateRepository.findById(3L)).willReturn(Optional.empty());
 
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
+		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
 	
