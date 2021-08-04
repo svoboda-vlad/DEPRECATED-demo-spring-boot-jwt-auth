@@ -28,11 +28,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().cors().and().authorizeRequests().antMatchers("/admin/**").hasRole("ADMIN")
-				.antMatchers(HttpMethod.POST, "/login", "/register").permitAll()
-				.antMatchers("/h2-console/**", "/current-user").permitAll()
-				.antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll().anyRequest()
-				.hasRole("USER")
+		http.csrf().disable().cors().and().authorizeRequests()
+				.antMatchers(HttpMethod.POST, "/login", "/user").permitAll()
+				.antMatchers(HttpMethod.GET, "/user").permitAll()
+				.antMatchers("/h2-console/**").permitAll()
+				.antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+				.antMatchers("/admin/**").hasRole("ADMIN")
+				.anyRequest().hasRole("USER")
 				.and()
 				// Filter for login requests
 				.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)

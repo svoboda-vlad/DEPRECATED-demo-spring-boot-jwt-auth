@@ -40,8 +40,7 @@ Response:
 unrestricted:
 - POST "/login" (LoginFilter)
 - POST "/google-login" (GoogleLoginFilter)
-- POST "/register" (UserController)
-- GET "/current-user" (UserController)
+- GET + POST "/user" (UserController)
 
 unrestricted, but not REST API:
 - GET "/h2-console/**"
@@ -54,7 +53,7 @@ restricted:
 - GET + PUT + DELETE "/exchange-rate/1" (ExchangeRateController)
 - GET "/exchange-rate/currency-code/1" (ExchangeRateController)
 - GET "/exchange-rate/date/2021-04-15" (ExchangeRateController)
-- POST "/update-user" (UserController)
+- PUT + DELETE "/user" (UserController)
 
 restricted (administrator):
 - GET "/admin/users" (UserAdminController)

@@ -216,24 +216,22 @@ class ExchangeRateControllerIntegTest {
 		currencyCode1 = currencyCodeRepository.save(currencyCode1);
 		
 		String requestUrl = "/exchange-rate/" + exchangeRate1.getId();
-		String requestJson = "";
 		int expectedStatus = 204;
 		String expectedJson = "";
 
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
+		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}		
 	
 	@Test
 	void testDeleteExchangeRateNotFoundBadRequest400() throws Exception {
 		String requestUrl = "/exchange-rate/3";
-		String requestJson = "";
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME))
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().is(expectedStatus))
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
+		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
 	
@@ -242,9 +240,8 @@ class ExchangeRateControllerIntegTest {
 		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
 		List<ExchangeRate> ratesList = exchangeRateRepository.findByRateDate(LocalDate.of(2021, 4, 15));
 		ExchangeRate rate = ratesList.get(0);
-		String requestUrl = "/exchange-rate/" + rate.getId();
 		
-		String requestJson = "";
+		String requestUrl = "/exchange-rate/" + rate.getId();
 		int expectedStatus = 200;
 		String expectedJson = "{\"id\":" + rate.getId() + ",\"rateDate\":\"2021-04-15\",\"rate\":25.940,\"currencyCode\":{\"id\":" + code.getId() + "}}";
 

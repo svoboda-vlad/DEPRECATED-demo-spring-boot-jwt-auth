@@ -3,8 +3,10 @@ package com.example.demo.security;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,7 +14,6 @@ import java.util.Optional;
 
 import javax.persistence.EntityExistsException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -58,11 +59,11 @@ class UserControllerTest {
 	
 	@Test
 	void testGetCurrentUserOk200() throws Exception {
-		String requestUrl = "/current-user";
+		String requestUrl = "/user";
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user1\",\"givenName\":\"User 1\",\"familyName\":\"User 1\",\"userRoles\":[{\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";
 		
-		User user = new User(USERNAME, StringUtils.repeat("A", 60), LoginProvider.INTERNAL, "User 1", "User 1");
+		User user = new User(USERNAME, "A".repeat(60), LoginProvider.INTERNAL, "User 1", "User 1");
 		user.addRole(new Role(ROLE_USER));
 		
 		given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(user);
@@ -75,7 +76,7 @@ class UserControllerTest {
 	
 	@Test
 	void testGetCurrentUserMissingAuthorizationHeaderNotFound404() throws Exception {
-		String requestUrl = "/current-user";
+		String requestUrl = "/user";
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
@@ -86,7 +87,7 @@ class UserControllerTest {
 	
 	@Test
 	void testGetCurrentUserInvalidAuthorizationHeaderNotFound404() throws Exception {
-		String requestUrl = "/current-user";
+		String requestUrl = "/user";
 		int expectedStatus = 404;
 		String expectedJson = "";
 		
@@ -99,7 +100,7 @@ class UserControllerTest {
 	
 	@Test
 	void testGetCurrentUserInvalidTokenNotFound404() throws Exception {
-		String requestUrl = "/current-user";
+		String requestUrl = "/user";
 		int expectedStatus = 404;
 		String expectedJson = "";
 				
@@ -110,12 +111,12 @@ class UserControllerTest {
 	
 	@Test
 	void testRegisterUserCreated201() throws Exception {
-		String requestUrl = "/register";
+		String requestUrl = "/user";
 		String requestJson = "{\"username\":\"usernew\",\"password\":\"pass123new\",\"givenName\":\"New User\",\"familyName\":\"New User\"}";
 		int expectedStatus = 201;
 		String expectedJson = "";
 		
-		given(encoder.encode(PASSWORD_NEW)).willReturn(StringUtils.repeat("A", 60));
+		given(encoder.encode(PASSWORD_NEW)).willReturn("A".repeat(60));
 		UserRegister userRegister = new UserRegister(USERNAME_NEW, PASSWORD_NEW, "New User", "New User");
 		User user = userRegister.toUserInternal(encoder);
 		
@@ -128,12 +129,12 @@ class UserControllerTest {
 	
 	@Test
 	void testRegisterUserExistsAlreadyBadRequest400() throws Exception {
-		String requestUrl = "/register";
+		String requestUrl = "/user";
 		String requestJson = "{\"username\": \"usernew\", \"password\": \"pass123new\", \"givenName\": \"New User\",\"familyName\": \"New User\"}";
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
-		given(encoder.encode(PASSWORD_NEW)).willReturn(StringUtils.repeat("A", 60));
+		given(encoder.encode(PASSWORD_NEW)).willReturn("A".repeat(60));
 		UserRegister userRegister = new UserRegister(USERNAME_NEW, PASSWORD_NEW, "New User", "New User");
 		User user = userRegister.toUserInternal(encoder);
 		
@@ -146,12 +147,12 @@ class UserControllerTest {
 	
 	@Test
 	void testUpdateUserOk200() throws Exception {
-		String requestUrl = "/update-user";
+		String requestUrl = "/user";
 		String requestJson = "{\"username\":\"user1\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
 		int expectedStatus = 200;
 		String expectedJson = "{\"username\":\"user1\",\"givenName\":\"User X\",\"familyName\":\"User Y\",\"userRoles\":[{\"role\":{\"id\":0,\"name\":\"ROLE_USER\"}}],\"lastLoginDateTime\":null,\"previousLoginDateTime\":null}";		
 		
-		User user = new User(USERNAME, StringUtils.repeat("A", 60), LoginProvider.INTERNAL, "User 1", "User 1");
+		User user = new User(USERNAME, "A".repeat(60), LoginProvider.INTERNAL, "User 1", "User 1");
 		user.addRole(new Role(ROLE_USER));
 		
 		given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(user);
@@ -160,26 +161,46 @@ class UserControllerTest {
 
 		given(userService.updateUser(userInfo)).willReturn(userInfo.toUser(user));
 										
-		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(put(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().json(expectedJson));
 	}
 		
 	@Test
 	void testUpdateUserUsernameDoesNotMatchBadRequest400() throws Exception {
-		String requestUrl = "/update-user";
+		String requestUrl = "/user";
 		String requestJson = "{\"username\":\"userx\",\"lastLoginDateTime\":null,\"previousLoginDateTime\":null, \"givenName\": \"User X\",\"familyName\": \"User Y\"}";
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
-		User user = new User(USERNAME, StringUtils.repeat("A", 60), LoginProvider.INTERNAL, "User 1", "User 1");
+		User user = new User(USERNAME, "A".repeat(60), LoginProvider.INTERNAL, "User 1", "User 1");
 		user.addRole(new Role(ROLE_USER));
 		
 		given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(user);		
 		
-		this.mvc.perform(post(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).content(requestJson).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(put(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)).content(requestJson).contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));
 	}
-
+	
+	@Test
+	void testDeleteUserNoContent204() throws Exception {
+		String requestUrl = "/user";
+		int expectedStatus = 204;
+		String expectedJson = "";
+		
+		User user = new User(USERNAME, "A".repeat(60), LoginProvider.INTERNAL, "User 1", "User 1");
+		user.addRole(new Role(ROLE_USER));
+		user.setId(1L);
+		
+		given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(user);
+		given(userRepository.findByUsername(USERNAME)).willReturn(Optional.of(user));
+		
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
+		.andExpect(status().is(expectedStatus))
+				.andExpect(content().string(expectedJson));
+		
+		verify(userRepository, times(1)).deleteById(1L);
+	}
+	
 }

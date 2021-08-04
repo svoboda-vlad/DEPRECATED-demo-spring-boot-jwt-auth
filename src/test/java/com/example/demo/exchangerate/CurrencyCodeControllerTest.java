@@ -217,13 +217,12 @@ class CurrencyCodeControllerTest {
 	@Test
 	void testDeleteCurrencyCodeNotFoundBadRequest400() throws Exception {
 		String requestUrl = "/currency-code/3";
-		String requestJson = "";
 		int expectedStatus = 400;
 		String expectedJson = "";
 		
 		given(currencyCodeRepository.findById(3L)).willReturn(Optional.empty());
 				
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));		
 	}	

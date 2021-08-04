@@ -203,12 +203,11 @@ class CurrencyCodeControllerIntegTest {
 	void testDeleteCurrencyCodeNoContent204() throws Exception {
 		CurrencyCode code = currencyCodeRepository.findByCurrencyCode("EUR");
 		
-		String requestUrl = "/currency-code/" + code.getId();		
-		String requestJson = "";
+		String requestUrl = "/currency-code/" + code.getId();
 		int expectedStatus = 204;
 		String expectedJson = "";
-				
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));		
 	}
@@ -216,11 +215,10 @@ class CurrencyCodeControllerIntegTest {
 	@Test
 	void testDeleteCurrencyCodeNotFoundBadRequest400() throws Exception {
 		String requestUrl = "/currency-code/3";
-		String requestJson = "";
 		int expectedStatus = 400;
 		String expectedJson = "";
-						
-		this.mvc.perform(delete(requestUrl).content(requestJson).header("Authorization", generateAuthorizationHeader(USERNAME)).contentType(MediaType.APPLICATION_JSON))
+
+		this.mvc.perform(delete(requestUrl).header("Authorization", generateAuthorizationHeader(USERNAME)))
 		.andExpect(status().is(expectedStatus))
 				.andExpect(content().string(expectedJson));		
 	}		
